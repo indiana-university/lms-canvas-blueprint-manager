@@ -1,6 +1,5 @@
-package edu.iu.uits.lms.microservicestemplate.config;
+package edu.iu.uits.lms.blueprintmanager.config;
 
-import edu.iu.uits.lms.common.oauth.CustomJwtAuthenticationConverter;
 import edu.iu.uits.lms.lti.security.LtiAuthenticationProvider;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +7,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 public class SecurityConfig {
@@ -33,7 +31,6 @@ public class SecurityConfig {
             //Need to disable the frame options so we can embed this in another tool
             http.headers().frameOptions().disable();
 
-            http.exceptionHandling().accessDeniedPage("/accessDenied");
         }
 
         @Override
@@ -42,26 +39,6 @@ public class SecurityConfig {
             web.ignoring().antMatchers("/app/jsrivet/**", "/app/webjars/**", "/actuator/**", "/app/css/**", "/app/js/**");
         }
 
-    }
-
-
-    @Configuration
-    @Order(SecurityProperties.BASIC_AUTH_ORDER - 3)
-    public static class RestSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers().antMatchers("/rest/**")
-                  .and()
-                  .authorizeRequests()
-                  .antMatchers("/rest/**")
-                  .access("hasAuthority('SCOPE_lms:rest') and hasAuthority('ROLE_LMS_REST_ADMINS')")
-                  .and()
-                  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                  .and()
-                  .oauth2ResourceServer()
-                  .jwt().jwtAuthenticationConverter(new CustomJwtAuthenticationConverter());
-        }
     }
 
     @Configuration
