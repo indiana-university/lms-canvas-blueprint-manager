@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html lang="en-US"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="utf-8"/>
+    <title>Blueprint Course Manager - Associate Courses Confirmation</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="rvt-grid">
+        <div class="rvt-grid__item">
+            <form th:object="${confirmationModel}" th:action="@{|/app/${context}/confirm|}" method="post">
+                <input type="hidden" th:field="*{blueprintCourseId}">
+                <input type="hidden" th:field="*{publishAfterSync}">
+                <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
+
+                <!-- display a message if criteria was not met for normal page usage -->
+                <p class="rvt-ts-18">This is the final list of courses associated with the blueprint, as well as a breakdown of the actions.</p>
+                <div class="rvt-box">
+                    <div class="rvt-box__body">
+                        <div class="rvt-grid">
+                            <div class="rvt-grid__item-lg">
+                                <h2 class="rvt-ts-26">Final List of Associated Courses</h2>
+                                <p>
+                                <ul class="rvt-plain-list" id="summaryListFinal">
+                                    <li id="summaryNone" th:if="*{#lists.isEmpty(finalCourses)}">None</li>
+                                    <li th:each="course : *{finalCourses}"
+                                        th:id="'final_' + ${course.courseId}"
+                                        th:text="|${course.courseName} (${course.termName})|">course name</li>
+                                </ul>
+                                </p>
+                            </div>
+                            <div class="rvt-grid__item-lg">
+                                <h2 class="rvt-ts-26">Summary of Actions</h2>
+                                <p>
+                                <h3>Added</h3>
+                                <ul class="rvt-plain-list" id="summaryListAdded">
+                                    <li id="addedNone" th:if="*{#lists.isEmpty(addedCourses)}">None</li>
+                                    <li th:each="course,courseStat : *{addedCourses}"
+                                        th:id="'added_' + ${course.courseId}"
+                                        th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
+                                        <input type="hidden" th:name="|addedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
+                                    </li>
+                                </ul>
+                                </p>
+                                <p th:if="*{publishAfterSync}">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
+                                <p>
+                                <h3>Removed</h3>
+                                <ul class="rvt-plain-list"  id="summaryListRemoved">
+                                    <li id="removedNone" th:if="*{#lists.isEmpty(removedCourses)}">None</li>
+                                    <li th:each="course,courseStat : *{removedCourses}"
+                                        th:id="'removed_' + ${course.courseId}"
+                                        th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
+                                        <input type="hidden" th:name="|removedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
+                                </ul>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
+                    <button class="rvt-button rvt-button--secondary" name="action"
+                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_CANCEL}">Cancel</button>
+                    <button class="rvt-button rvt-button--secondary" name="action"
+                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_EDIT}">Edit</button>
+                    <button class="rvt-button" name="action"
+                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_SUBMIT}">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

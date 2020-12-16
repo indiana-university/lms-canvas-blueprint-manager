@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>microservices-template</artifactId>
+    <artifactId>blueprint-manager</artifactId>
     <packaging>jar</packaging>
-    <name>microservices-template</name>
+    <name>blueprint-manager</name>
     <version>4.0.0-SNAPSHOT</version>
 
     <parent>
@@ -15,9 +15,9 @@
 
     <properties>
         <app.version>${project.version}</app.version>
-        <docker_repository_name>microservices-template</docker_repository_name>
+        <docker_repository_name>blueprint-manager</docker_repository_name>
         <docker_tag>stable</docker_tag>
-        <helm_service_name>microservices-template</helm_service_name>
+        <helm_service_name>blueprint-manager</helm_service_name>
     </properties>
 
     <dependencies>
@@ -59,17 +59,17 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-lti-web</artifactId>
-            <version>4.0.12</version>
+            <version>4.0.13</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-canvas-client</artifactId>
-            <version>4.0.17</version>
+            <version>4.0.18</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>common-configuration</artifactId>
-            <version>4.0.10</version>
+            <version>4.0.11</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -79,6 +79,10 @@
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
             <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>font-awesome</artifactId>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
@@ -114,7 +118,7 @@
 
 
     <build>
-        <finalName>microservices-template</finalName>
+        <finalName>blueprint-manager</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -144,20 +148,6 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>de.jpdigital</groupId>
-                <artifactId>hibernate54-ddl-maven-plugin</artifactId>
-                <configuration>
-                    <dialects>
-                        <param>h2</param>
-                        <param>postgresql9</param>
-                    </dialects>
-                    <packages>
-                        <param>edu.iu.uits.lms.microservices-template</param>
-                    </packages>
-<!--                    <persistenceXml>src/main/webapp/META-INF/canvasnotifier-persistence.xml</persistenceXml>-->
-                </configuration>
             </plugin>
         </plugins>
         <resources>
