@@ -3,13 +3,14 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
-    <title>microservices-template - Home</title>
+    <title>Blueprint Course Manager</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/webjars/font-awesome/css/font-awesome.min.css}" />
     <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-bundle.min.css}" />
-    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/css/microservices-template.css}"/>
+    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/css/blueprint.css}"/>
 </head>
 <body>
 
@@ -26,10 +27,7 @@
 
         See https://rivet.uits.iu.edu/components/layout/grid/ for options, depending on what's needed.
     -->
-
 </div>
-
-
 
 <footer th:unless="${hideFooter}" class="rvt-ts-12 rvt-container rvt-m-top-lg">
     <div id="footer" th:text="${@serverInfo}"></div>
@@ -37,8 +35,6 @@
 
 <script type="text/javascript" th:src="@{/app/jsrivet/rivet-bundle.min.js}"></script>
 <script type="text/javascript" th:src="@{/app/webjars/jquery/jquery.min.js}"></script>
-<script type="text/javascript" th:src="@{/app/js/microservices-template.js}"></script>
-
 <th:block layout:fragment="script">
     <!--
         // load in individual pages javascript

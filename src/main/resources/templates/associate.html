@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html lang="en-US"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="utf-8"/>
+    <title>Blueprint Course Manager - Associate Courses</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="rvt-grid">
+        <div class="rvt-grid__item">
+            <form id="associateForm" th:object="${blueprintAssociationModel}" th:action="@{|/app/${context}/confirm|}" method="post">
+                <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
+
+                <div th:if="${associateSuccess}" class="rvt-alert rvt-alert--success rvt-m-bottom-md" role="alertdialog" aria-labelledby="success-alert-title">
+                    <h1 class="rvt-alert__title" id="success-alert-title">Success</h1>
+                    <p class="rvt-alert__message">Your blueprint course association changes were successful.</p>
+                    <p th:if="${publishAfterSyncMessage}" class="rvt-alert__message">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
+                    <button class="rvt-alert__dismiss" data-alert-close>
+                        <span class="v-hide">Dismiss this alert</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
+                        </svg>
+                    </button>
+                </div>
+                <div th:if="${associateFailureMessage}" class="rvt-alert rvt-alert--error rvt-m-bottom-md" role="alertdialog" aria-labelledby="error-alert-title">
+                    <h1 class="rvt-alert__title" id="error-alert-title">Error</h1>
+                    <p class="rvt-alert__message" th:utext="#{association.failure(${associateFailureMessage})}">Failure message</p>
+                    <button class="rvt-alert__dismiss" data-alert-close>
+                        <span class="v-hide">Dismiss this alert</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
+                        </svg>
+                    </button>
+                </div>
+                <div th:if="${syncWarningMessage}" class="rvt-alert rvt-alert--message rvt-m-bottom-md" role="alertdialog" aria-labelledby="warning-alert-title">
+                    <h1 class="rvt-alert__title" id="warning-alert-title">Warning</h1>
+                    <p class="rvt-alert__message" th:utext="#{syncWarningMessage(${syncWarningMessage})}">Sync message</p>
+                    <button class="rvt-alert__dismiss" data-alert-close>
+                        <span class="v-hide">Dismiss this alert</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                            <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- display a message if criteria was not met for normal page usage -->
+                <p class="rvt-ts-18">If you don't see the courses you need to associate, your Blueprint course may be in the wrong node.  For more information see: <a href="https://kb.iu.edu/d/apvn" target="_blank">https://kb.iu.edu/d/apvn</a></p>
+                <div class="rvt-box">
+                    <div class="rvt-box__body">
+                        <div class="rvt-grid">
+                            <div class="rvt-grid__item-4-md-up">
+                                <h2 class="rvt-ts-26">Associated Courses</h2>
+                                <p>
+                                <ul class="rvt-plain-list summaryList">
+                                    <li id="summaryNone" th:if="*{#lists.isEmpty(associatedCourses)}">None</li>
+                                    <li th:each="course : *{associatedCourses}"
+                                        th:id="'accociated_' + ${course.id}"
+                                        th:text="|${course.name} (${course.termName})|">course name</li>
+                                </ul>
+                                </p>
+                            </div>
+                            <div class="rvt-grid__item-8-md-up bp_checkboxes">
+                                <h2 class="rvt-ts-26">Available Courses</h2>
+                                <p>Select the courses you wish to add (associate) and uncheck the courses you wish to remove (de-associate).</p>
+                                <div th:each="termModel,termStat : *{termModels}" th:id="|term_${termModel.termId}|"
+                                     th:class="${!termModel.visible} ? hidden_term" th:hidden="${!termModel.visible} ? true">
+                                    <div class="rvt-display-flex toggleGroup">
+                                        <button type="button" class="rvt-button rvt-button--plain rvt-button--small fa fa-chevron-down dropdownoverride">
+                                            <span class="rvt-sr-only">For collapsing term checkboxes</span>
+                                        </button>
+                                        <h3 th:id="|${termModel.termId}_termName|" th:text="${termModel.termName}">FALL 2017</h3>
+                                    </div>
+                                    <input type="hidden" th:name="|termModels[__${termStat.index}__].termId|" th:value="${termModel.termId}">
+                                    <input type="hidden" th:name="|termModels[__${termStat.index}__].termName|" th:value="${termModel.termName}">
+                                    <input th:id="|term_${termModel.termId}_visible|" type="hidden" th:name="|termModels[__${termStat.index}__].visible|" th:value="${termModel.visible}">
+                                    <div class="toggler">
+                                        <fieldset th:id="|term_${termModel.termId}">
+                                            <!--<legend class="sr-only">Checkbox list</legend>-->
+                                            <ul class="blueprintNoStyleList">
+                                                <li th:each="courseModel,courseStat : ${termModel.courses}">
+                                                    <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].courseId|" th:value="${courseModel.courseId}">
+                                                    <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].courseName|" th:id="|${courseModel.courseId}_courseName|" th:value="${courseModel.courseName}">
+                                                    <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].termName|" th:id="|${courseModel.courseId}_termName|" th:value="${termModel.termName}">
+                                                    <input type="checkbox" class="hidden_checkbox"
+                                                           th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].originallyChecked|"
+                                                           th:id="|originallyChecked_${courseModel.courseId}|"
+                                                           th:checked="${courseModel.originallyChecked}?checked">
+                                                    <input type="checkbox" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].currentlyChecked|"
+                                                           th:id="${courseModel.courseId}" class="currentlyChecked"
+                                                           th:checked="${courseModel.currentlyChecked}?checked">
+                                                    <label th:for="${courseModel.courseId}" class="rvt-m-right-sm">
+                                                        <span class="courseName" th:text="${courseModel.courseName}">FA17-IN-MATH-A123-12345</span>
+                                                        <span th:if="${associateFailureMessage != null and courseModel.currentlyChecked}" th:text="| (${courseModel.courseId})|"></span>
+                                                    </label>
+                                                </li>
+                                            </ul>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <label for="select-term">Term:</label>
+                                <!-- TODO possibly put the width into a css class -->
+                                <select id="select-term" style="width: 50%;">
+                                    <option value="">- Select a term -</option>
+                                    <option th:each="term : *{termOptions}" th:value="${term.id}"
+                                            th:text="${term.name}">TERMNAME ####</option>
+                                </select>
+                                <input type="checkbox"
+                                       id="publishAfterSync"
+                                       name="publishAfterSync"
+                                       value="true">
+                                <label for="publishAfterSync" class="rvt-m-right-sm">
+                                    <span th:text="#{association.publishAfterSync.label}">Publish sync label</span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
+                    <button class="rvt-button rvt-button--secondary" type="button" th:onclick="|location.href='@{/app/__${context}__/index}'|">Settings</button>
+                    <button id="btnReset" class="rvt-button rvt-button--secondary" type="button">Reset</button>
+                    <button id="btnContinue" class="rvt-button" disabled="disabled" aria-disabled="true">Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/app/js/associate.js}"></script>
+</th:block>
+</body>
+</html>

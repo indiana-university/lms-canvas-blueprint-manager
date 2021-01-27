@@ -1,0 +1,62 @@
+.blueprintNoStyleList {
+    list-style: none;
+}
+
+.toggleWrapper {
+    border-width: 1px 1px 0px 1px;
+    border-style: solid;
+
+    /* rivet now adds 0.5em of margin to all li elements, so we need to compensate
+    for that here to avoid a gap at the bottom of each option */
+    margin-bottom: -0.5em;
+}
+
+#lobtEnabled {
+    /* Add the margin back to the bottom of the lobt grid removed per the toggleWrapper */
+    margin-bottom: 0.5em;
+}
+
+.toggleWrapperBottom {
+    border-bottom: 1px solid;
+}
+
+.titleItem {
+    padding: .5rem 1rem;
+}
+
+.hide {
+    display: none;
+}
+
+.lockDescription {
+    line-height: 1;
+}
+
+.dropdownoverride {
+    color: #000000;
+}
+
+.hidden_checkbox {
+ opacity: 0.0;
+ position: absolute;
+ left: -9999px;
+ visibility: false;
+}
+
+.hidden_term {
+    display: none;
+}
+
+.sectionHighlight {
+    animation: fadeIt 3s ease-in;
+}
+
+@keyframes fadeIt {
+    0%    { background-color: #a2b4be; }
+    100%  { background-color: #fafafa; }
+}
+
+#syncOptions {
+    margin-left: 1.0em;
+    padding-top: 1.0em;
+}
