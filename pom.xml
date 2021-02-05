@@ -9,15 +9,25 @@
     <parent>
         <artifactId>lms2Wow</artifactId>
         <groupId>edu.iu.uits.lms</groupId>
-        <version>4.0.9</version>
+        <version>4.0.10-SNAPSHOT</version>
         <relativePath />
     </parent>
 
     <properties>
         <app.version>${project.version}</app.version>
+        <common-configuration.version>4.0.12-SNAPSHOT</common-configuration.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-io.version>2.8.0</commons-io.version>
         <docker_repository_name>blueprint-manager</docker_repository_name>
         <docker_tag>stable</docker_tag>
         <helm_service_name>blueprint-manager</helm_service_name>
+        <jquery.version>3.5.1</jquery.version>
+        <lms-canvas-client.version>4.0.20-SNAPSHOT</lms-canvas-client.version>
+        <lms-lti-web.version>4.0.18-SNAPSHOT</lms-lti-web.version>
+        <lms-rivet.version>4.1.7.3-SNAPSHOT</lms-rivet.version>
+        <nimbus-jose-jwt.version>9.4.2</nimbus-jose-jwt.version>
+        <redis-config.version>4.0.4-SNAPSHOT</redis-config.version>
+        <spring-security-oauth2-autoconfigure.version>2.3.8.RELEASE</spring-security-oauth2-autoconfigure.version>
     </properties>
 
     <dependencies>
@@ -54,22 +64,22 @@
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-            <version>2.3.1.RELEASE</version>
+            <version>${spring-security-oauth2-autoconfigure.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-lti-web</artifactId>
-            <version>4.0.15</version>
+            <version>${lms-lti-web.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-canvas-client</artifactId>
-            <version>4.0.18</version>
+            <version>${lms-canvas-client.version}</version>
         </dependency>
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>common-configuration</artifactId>
-            <version>4.0.11</version>
+            <version>${common-configuration.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -78,7 +88,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
-            <version>3.4.1</version>
+            <version>${jquery.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -87,7 +97,7 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>lms-rivet</artifactId>
-            <version>4.1.7.2_1</version>
+            <version>${lms-rivet.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -96,22 +106,22 @@
         <dependency>
             <groupId>edu.iu.uits.lms</groupId>
             <artifactId>redis-config</artifactId>
-            <version>4.0.3</version>
+            <version>${redis-config.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>8.19</version>
+            <version>${nimbus-jose-jwt.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.4</version>
+            <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.7</version>
+            <version>${commons-io.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
