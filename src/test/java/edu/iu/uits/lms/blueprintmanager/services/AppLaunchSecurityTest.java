@@ -63,7 +63,7 @@ public class AppLaunchSecurityTest {
             .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError())
-            .andExpect(MockMvcResultMatchers.view().name ("ltiglobalerror"))
+            .andExpect(MockMvcResultMatchers.view().name ("error"))
             .andExpect(MockMvcResultMatchers.model().attributeExists("error"));
    }
 
