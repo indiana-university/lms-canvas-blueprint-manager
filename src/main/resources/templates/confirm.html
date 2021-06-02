@@ -35,7 +35,7 @@
                             <div class="rvt-grid__item-lg">
                                 <h2 class="rvt-ts-26">Summary of Actions</h2>
                                 <p>
-                                <h3>Added</h3>
+                                <h3 class="rvt-ts-20">Added</h3>
                                 <ul class="rvt-plain-list" id="summaryListAdded">
                                     <li id="addedNone" th:if="*{#lists.isEmpty(addedCourses)}">None</li>
                                     <li th:each="course,courseStat : *{addedCourses}"
@@ -47,7 +47,7 @@
                                 </p>
                                 <p th:if="*{publishAfterSync}">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
                                 <p>
-                                <h3>Removed</h3>
+                                <h3 class="rvt-ts-20">Removed</h3>
                                 <ul class="rvt-plain-list"  id="summaryListRemoved">
                                     <li id="removedNone" th:if="*{#lists.isEmpty(removedCourses)}">None</li>
                                     <li th:each="course,courseStat : *{removedCourses}"

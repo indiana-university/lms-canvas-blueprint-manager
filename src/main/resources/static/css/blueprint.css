@@ -36,12 +36,6 @@
     color: #000000;
 }
 
-.hidden_checkbox {
- opacity: 0.0;
- position: absolute;
- left: -9999px;
- visibility: false;
-}
 
 .hidden_term {
     display: none;
