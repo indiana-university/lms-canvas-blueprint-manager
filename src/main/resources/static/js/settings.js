@@ -25,8 +25,13 @@ jQuery(document).ready(function($) {
     //Loop through all item types
     $.each( itemNameList, function( index, val ) {
         $('#' + val + 'TitleItem').click(function() {
-            $("#" + val + "Toggler").slideToggle("slow");
-            $("#" + val + "Chevron").toggleClass("fa-chevron-right fa-chevron-down");
+            var toggleSection = $("#" + val + "Toggler");
+            toggleSection.slideToggle("slow");  
+            toggleSection.attr("aria-hidden", toggleSection.attr('aria-hidden')=='true' ? 'false' : 'true');
+                   
+            var toggleButton = $("#" + val + "Chevron");
+            toggleButton.toggleClass("fa-chevron-right fa-chevron-down");
+            toggleButton.attr("aria-expanded", toggleButton.attr('aria-expanded')=='true' ? 'false' : 'true');
         });
 
         var fieldset = $('#' + val + 'Checkboxes input[type="checkbox"]');
