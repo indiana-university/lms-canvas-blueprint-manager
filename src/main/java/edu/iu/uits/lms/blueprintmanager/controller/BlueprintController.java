@@ -217,6 +217,7 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
 
         BlueprintAssociationModel bam = courseSessionService.getAttributeFromSession(session, context, FORM_SESSION_KEY, BlueprintAssociationModel.class);
         bam.setInitialized(true);
+        bam.setPublishAfterSync(blueprintModel.isPublishAfterSync());
         courseSessionService.removeAttributeFromSession(session, context, FORM_SESSION_KEY);
 
         return associate(context, bam, model, session);
