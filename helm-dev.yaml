@@ -23,3 +23,6 @@ service:
 activeProfiles: "dev"
 
 developmentMode: true
+
+vault:
+  enabled: false
