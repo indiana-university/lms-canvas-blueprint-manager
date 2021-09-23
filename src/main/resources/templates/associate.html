@@ -127,9 +127,15 @@
                     </div>
                 </div>
                 <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
-                    <button class="rvt-button rvt-button--secondary" type="button" th:onclick="|location.href='@{/app/__${context}__/index}'|">Settings</button>
+                    <button class="rvt-button rvt-button--secondary" type="button" th:onclick="|buttonLoading(this, false); location.href='@{/app/__${context}__/index}'|">
+                        <span class="rvt-button__content">Settings</span>
+                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                    </button>
                     <button id="btnReset" class="rvt-button rvt-button--secondary" type="button">Reset</button>
-                    <button id="btnContinue" class="rvt-button" disabled="disabled" aria-disabled="true">Continue</button>
+                    <button id="btnContinue" class="rvt-button" disabled="disabled" aria-disabled="true" onclick="buttonLoading(this)">
+                        <span class="rvt-button__content">Continue</span>
+                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                    </button>
                 </div>
             </form>
         </div>
@@ -137,6 +143,7 @@
 </div>
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/app/js/associate.js}"></script>
+    <script type="text/javascript" th:src="@{/app/js/loading.js}"></script>
 </th:block>
 </body>
 </html>

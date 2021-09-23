@@ -61,16 +61,29 @@
                     </div>
                 </div>
                 <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
-                    <button class="rvt-button rvt-button--secondary" name="action"
-                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_CANCEL}">Cancel</button>
-                    <button class="rvt-button rvt-button--secondary" name="action"
-                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_EDIT}">Edit</button>
-                    <button class="rvt-button" name="action"
-                            th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_CONFIRM_SUBMIT}">Submit</button>
+                    <button id="btnCancel" class="rvt-button rvt-button--secondary"
+                            data-action="cancel" onclick="buttonLoading(this)">
+                        <span class="rvt-button__content">Cancel</span>
+                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                    </button>
+                    <button id="btnEdit" class="rvt-button rvt-button--secondary"
+                            data-action="edit" onclick="buttonLoading(this)">
+                        <span class="rvt-button__content">Edit</span>
+                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                    </button>
+                    <button id="btnSubmit" class="rvt-button"
+                            data-action="submit" onclick="buttonLoading(this)">
+                        <span class="rvt-button__content">Submit</span>
+                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                    </button>
+                    <input id="formSubmitAction" type="hidden" name="action" />
                 </div>
             </form>
         </div>
     </div>
 </div>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/app/js/loading.js}"></script>
+</th:block>
 </body>
 </html>
