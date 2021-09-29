@@ -151,12 +151,18 @@
                     </fieldset>
 
                     <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
-                        <button class="rvt-button rvt-button--secondary" name="action" th:disabled="*{!enableBlueprint}?disabled" th:aria-disabled="*{!enableBlueprint}?true"
-                                th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_ASSOCIATE}">Associate Courses</button>
+                        <button id="associateCoursesButton" class="rvt-button rvt-button--secondary" th:disabled="*{!enableBlueprint}?disabled"
+                                th:aria-disabled="*{!enableBlueprint}?true" data-action="associate" onclick="buttonLoading(this)">
+                            <span class="rvt-button__content">Associate Courses</span>
+                            <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                        </button>
                         <button id="syncButton" type="button" class="rvt-button rvt-button--secondary" th:disabled="${disableSync}" th:aria-disabled="${disableSync}"
                                 data-modal-trigger="modal-sync-options">Sync</button>
-                        <button class="rvt-button" name="action"
-                                th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_SETTINGS_SAVE}">Update Settings</button>
+                        <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
+                            <span class="rvt-button__content">Update Settings</span>
+                            <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                        </button>
+                        <input id="formSubmitAction" type="hidden" name="action" />
                     </div>
 
                     <div class="rvt-modal"
@@ -184,7 +190,10 @@
                                 </fieldset>
                             </div>
                             <div class="rvt-modal__controls">
-                                <button id="completeSync" class="rvt-button" th:text="#{modal.complete}" name="action" th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintConstants).ACTION_SYNC}">Complete</button>
+                                <button id="completeSync" class="rvt-button" onclick="buttonLoading(this)" data-action="sync">
+                                    <span class="rvt-button__content" th:text="#{modal.complete}">Complete</span>
+                                    <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                                </button>
                                 <button id="cancelSync" type="button" class="rvt-button rvt-button--secondary" th:text="#{modal.cancel}" data-modal-close="modal-sync-options">Cancel</button>
                             </div>
                             <button id="closeModal" type="button" class="rvt-button rvt-modal__close" data-modal-close="modal-sync-options">
@@ -202,6 +211,7 @@
 </div>
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/app/js/settings.js}"></script>
+    <script type="text/javascript" th:src="@{/app/js/loading.js}"></script>
 </th:block>
 </body>
 </html>
