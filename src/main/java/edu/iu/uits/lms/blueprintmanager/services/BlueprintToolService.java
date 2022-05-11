@@ -1,33 +1,31 @@
 package edu.iu.uits.lms.blueprintmanager.services;
 
-import canvas.client.generated.api.AccountsApi;
-import canvas.client.generated.api.BlueprintApi;
-import canvas.client.generated.api.CoursesApi;
-import canvas.client.generated.api.TermsApi;
-import canvas.client.generated.model.Account;
-import canvas.client.generated.model.BlueprintAssociatedCourse;
-import canvas.client.generated.model.BlueprintConfiguration;
-import canvas.client.generated.model.BlueprintCourseUpdateStatus;
-import canvas.client.generated.model.BlueprintMigration;
-import canvas.client.generated.model.BlueprintMigrationStatus;
-import canvas.client.generated.model.BlueprintRestriction;
-import canvas.client.generated.model.BlueprintUpdateStatus;
-import canvas.client.generated.model.CanvasTerm;
-import canvas.client.generated.model.Course;
-import canvas.client.generated.model.User;
-import canvas.helpers.BlueprintHelper;
-import canvas.helpers.CanvasConstants;
-import canvas.helpers.CanvasDateFormatUtil;
-import canvas.helpers.EnrollmentHelper;
-import canvas.helpers.TermHelper;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintSettings;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintAssociationModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintConfirmationModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintCourseModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintTermModel;
+import edu.iu.uits.lms.canvas.helpers.BlueprintHelper;
+import edu.iu.uits.lms.canvas.helpers.CanvasConstants;
+import edu.iu.uits.lms.canvas.helpers.CanvasDateFormatUtil;
+import edu.iu.uits.lms.canvas.helpers.EnrollmentHelper;
+import edu.iu.uits.lms.canvas.helpers.TermHelper;
+import edu.iu.uits.lms.canvas.model.Account;
+import edu.iu.uits.lms.canvas.model.BlueprintAssociatedCourse;
+import edu.iu.uits.lms.canvas.model.BlueprintCourseUpdateStatus;
+import edu.iu.uits.lms.canvas.model.BlueprintMigration;
+import edu.iu.uits.lms.canvas.model.BlueprintMigrationStatus;
+import edu.iu.uits.lms.canvas.model.BlueprintRestriction;
+import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
+import edu.iu.uits.lms.canvas.model.CanvasTerm;
+import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.AccountService;
+import edu.iu.uits.lms.canvas.services.BlueprintService;
+import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.canvas.services.TermService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,20 +49,20 @@ public class BlueprintToolService {
     private static final String TEMPLATE_ID = "default";
 
     @Autowired
-    private CoursesApi coursesApi;
+    private CourseService courseService;
 
     @Autowired
-    private BlueprintApi blueprintApi = null;
+    private BlueprintService blueprintService = null;
 
     @Autowired
-    private TermsApi termsApi = null;
+    private TermService termService = null;
 
     @Autowired
-    private AccountsApi accountsApi = null;
+    private AccountService accountService = null;
 
 
     public BlueprintSettings getCourseSettings(String courseId) {
-        Course course = coursesApi.getCourse(courseId);
+        Course course = courseService.getCourse(courseId);
         return getCourseSettings(course);
     }
 
@@ -76,7 +74,7 @@ public class BlueprintToolService {
     private BlueprintSettings getCourseSettings(Course course) {
         BlueprintModel blueprintModel = new BlueprintModel();
         blueprintModel.setCourseId(course.getId());
-        blueprintModel.setEnableBlueprint(BooleanUtils.toBoolean(course.getBlueprint()));
+        blueprintModel.setEnableBlueprint(course.isBlueprint());
 
         BlueprintRestriction blueprintRestriction = course.getBlueprintRestrictions();
 
@@ -91,35 +89,35 @@ public class BlueprintToolService {
 
         List<String> states = Arrays.asList(EnrollmentHelper.STATE.active.name(), EnrollmentHelper.STATE.invited.name());
         List<String> types = Arrays.asList(EnrollmentHelper.TYPE.student.name(), EnrollmentHelper.TYPE.observer.name());
-        List<User> users = coursesApi.getUsersForCourseByType(course.getId(), types, states);
+        List<User> users = courseService.getUsersForCourseByType(course.getId(), types, states);
 
         if (users != null && !users.isEmpty()) {
             settings.hasEnrollments(true);
         }
 
-        List<BlueprintMigration> subscriptions = blueprintApi.getSubscriptions(course.getId(), TEMPLATE_ID);
+        List<BlueprintMigration> subscriptions = blueprintService.getSubscriptions(course.getId(), TEMPLATE_ID);
         settings.setAlreadyAssociated(!subscriptions.isEmpty());
 
-        List<BlueprintAssociatedCourse> bpCourses = blueprintApi.getAssociatedCourses(course.getId(), TEMPLATE_ID);
+        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(course.getId(), TEMPLATE_ID);
         settings.setHasAssociations(!bpCourses.isEmpty());
 
         return settings;
     }
 
     public BlueprintSettings updateCourseSettings(BlueprintModel blueprintModel) throws BlueprintConfigurationUpdateException {
-        boolean originalBlueprintSetting = BooleanUtils.toBoolean(coursesApi.getCourse(blueprintModel.getCourseId()).getBlueprint());
+        boolean originalBlueprintSetting = courseService.getCourse(blueprintModel.getCourseId()).isBlueprint();
 
-        BlueprintConfiguration bc = new BlueprintConfiguration();
+        BlueprintService.BlueprintConfiguration bc = new BlueprintService.BlueprintConfiguration();
         bc.setEnabled(blueprintModel.isEnableBlueprint());
         bc.setRestrictions(blueprintModel.getBlueprintRestrictions());
         bc.setHasObjectRestrictions(BlueprintModel.RADIO_OPTION.restrictionsByType.equals(blueprintModel.getRadioOption()));
         bc.setObjectRestrictions(blueprintModel.getBlueprintRestrictionsByObjectType());
 
-        List<String> contentTypes = Arrays.stream(BlueprintHelper.CONTENT_TYPE.values())
+        String[] contentTypes = Arrays.stream(BlueprintHelper.CONTENT_TYPE.values())
               .map(Enum::name)
-              .collect(Collectors.toList());
+              .toArray(String[]::new);
         bc.setDefaultRestrictionTypes(contentTypes);
-        BlueprintCourseUpdateStatus courseUpdateStatus = blueprintApi.saveBlueprintConfiguration(blueprintModel.getCourseId(), bc);
+        BlueprintCourseUpdateStatus courseUpdateStatus = blueprintService.saveBlueprintConfiguration(blueprintModel.getCourseId(), bc);
         Course course = courseUpdateStatus.getCourse();
         if (course == null) {
             String errorMessage = null;
@@ -130,7 +128,7 @@ public class BlueprintToolService {
         }
 
         // Only update the term and availability when blueprint is enabled/disabled
-        if (originalBlueprintSetting != BooleanUtils.toBoolean(course.getBlueprint())) {
+        if (originalBlueprintSetting != course.isBlueprint()) {
             updateCourseTermAndDates(course);
         }
 
@@ -140,11 +138,11 @@ public class BlueprintToolService {
 
     private void updateCourseTermAndDates(Course course) {
 
-        CanvasTerm noExpTerm = termsApi.getTermBySisId(TermHelper.TERM_NO_EXPIRATION);
-        if (BooleanUtils.toBoolean(course.getBlueprint())) {
+        CanvasTerm noExpTerm = termService.getTermBySisId(TermHelper.TERM_NO_EXPIRATION);
+        if (course.isBlueprint()) {
             // verify that the course term is set to "noexp", the course start and end dates are null, and no override
-            if (!noExpTerm.getId().equals(course.getEnrollmentTermId()) || course.getEndAt() != null || course.getStartAt() != null || course.getRestrictEnrollmentsToCourseDates()) {
-                coursesApi.updateTermAndCourseEndDate(course.getId(), null, noExpTerm.getId(), null, null, false);
+            if (!noExpTerm.getId().equals(course.getEnrollmentTermId()) || course.getEndAt() != null || course.getStartAt() != null || course.isRestrictEnrollmentsToCourseDates()) {
+                courseService.updateTermAndCourseEndDate(course.getId(), null, noExpTerm.getId(), null, null, false);
             }
         } else {
             // if the course is still set to "noexp", set the term to the current term used by the "Start a new course" form
@@ -152,9 +150,9 @@ public class BlueprintToolService {
             if (noExpTerm.getId().equals(course.getEnrollmentTermId())) {
                 // set the term to the current term, restrict enrollments to course dates, and set end date to one year from today
                 OffsetDateTime endDate = CanvasDateFormatUtil.getCalculatedCourseEndDate();
-                CanvasTerm currTerm = termsApi.getCurrentYearTerm();
+                CanvasTerm currTerm = termService.getCurrentYearTerm();
 
-                coursesApi.updateTermAndCourseEndDate(course.getId(), null, currTerm.getId(), null, endDate, true);
+                courseService.updateTermAndCourseEndDate(course.getId(), null, currTerm.getId(), null, endDate, true);
             }
         }
     }
@@ -166,7 +164,7 @@ public class BlueprintToolService {
      * @return List of courses
      */
     private List<BlueprintAssociatedCourse> getAssociatedCourses(String courseId, List<Course> availableCourses) {
-        List<BlueprintAssociatedCourse> bpCourses = blueprintApi.getAssociatedCourses(courseId, TEMPLATE_ID);
+        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(courseId, TEMPLATE_ID);
 
         Set<String> availableCourseIds = availableCourses.stream().map(Course::getId).collect(Collectors.toSet());
 
@@ -182,17 +180,17 @@ public class BlueprintToolService {
      * @return List of courses
      */
     protected List<Course> getAvailableCourses(String userId, String accountId) {
-        List<Course> courses = coursesApi.getCoursesTaughtBy(userId, false, false, false);
+        List<Course> courses = courseService.getCoursesTaughtBy(userId, false, false, false);
         Map<String, Set<String>> accountIdCache = new HashMap<>();
         List<Course> filteredCourses = new ArrayList<>();
         courses.forEach(c -> {
             Set<String> accountIds = accountIdCache.computeIfAbsent(c.getAccountId(), k -> {
-                List<Account> accounts = accountsApi.getParentAccounts(c.getAccountId());
+                List<Account> accounts = accountService.getParentAccounts(c.getAccountId());
                 Set<String> theAccountIds = accounts.stream().map(Account::getId).collect(Collectors.toSet());
                 theAccountIds.add(c.getAccountId());
                 return theAccountIds;
             });
-            if (accountIds.contains(accountId) && !BooleanUtils.toBoolean(c.getBlueprint())) {
+            if (accountIds.contains(accountId) && !c.isBlueprint()) {
                 filteredCourses.add(c);
             }
         });
@@ -205,7 +203,7 @@ public class BlueprintToolService {
      * @return List of CanvasTerm objects, sorted by start date
      */
     protected List<CanvasTerm> getPossibleTerms(List<Course> courses) {
-        List<CanvasTerm> allTerms = termsApi.getEnrollmentTerms();
+        List<CanvasTerm> allTerms = termService.getEnrollmentTerms();
         Map<String, CanvasTerm> allTermMap = allTerms.stream().collect(Collectors.toMap(CanvasTerm::getId, term -> term, (a, b) -> b));
 
         List<String> availableTermsIds = courses.stream().map(Course::getEnrollmentTermId)
@@ -223,7 +221,7 @@ public class BlueprintToolService {
         BlueprintAssociationModel blueprintAssociationModel = new BlueprintAssociationModel();
         blueprintAssociationModel.setInitialized(true);
 
-        Course blueprintCourse = coursesApi.getCourse(courseId);
+        Course blueprintCourse = courseService.getCourse(courseId);
 
         List<Course> availableCourses = getAvailableCourses(username, blueprintCourse.getAccountId());
 
@@ -300,7 +298,7 @@ public class BlueprintToolService {
                 .map(BlueprintConfirmationModel.CourseConfirmation::getCourseId)
                 .collect(Collectors.toList());
 
-        return blueprintApi.updateAssociatedCourses(model.getBlueprintCourseId(), TEMPLATE_ID,
+        return blueprintService.updateAssociatedCourses(model.getBlueprintCourseId(), TEMPLATE_ID,
                 addedCourseIds, removedCourseIds);
     }
 
@@ -309,7 +307,7 @@ public class BlueprintToolService {
 
         if (filteredMigrations.isEmpty()) {
             String asUser = username != null ? CanvasConstants.API_FIELD_SIS_LOGIN_ID + ":" + username : null;
-            return blueprintApi.performMigration(courseId, TEMPLATE_ID, copySettings, sendNotifications, asUser, publishAfterSync);
+            return blueprintService.performMigration(courseId, TEMPLATE_ID, copySettings, sendNotifications, asUser, publishAfterSync);
         } else {
             BlueprintMigrationStatus status = new BlueprintMigrationStatus();
             status.setMessage("A sync is currently in progress.  Please wait a few minutes and try to associate these courses again.");
@@ -319,7 +317,7 @@ public class BlueprintToolService {
 
     public List<BlueprintMigration> getActiveMigrationStatuses(String courseId) {
         //Check for currently running migrations
-        List<BlueprintMigration> blueprintMigrations = blueprintApi.getMigrations(courseId, TEMPLATE_ID);
+        List<BlueprintMigration> blueprintMigrations = blueprintService.getMigrations(courseId, TEMPLATE_ID);
 
         List<String> activeStates = Arrays.asList(BlueprintHelper.WORKFLOW_STATE.EXPORTING.getValue(),
               BlueprintHelper.WORKFLOW_STATE.IMPORTS_QUEUED.getValue(), BlueprintHelper.WORKFLOW_STATE.QUEUED.getValue());

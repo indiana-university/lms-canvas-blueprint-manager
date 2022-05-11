@@ -1,7 +1,7 @@
 package edu.iu.uits.lms.blueprintmanager.model;
 
-import canvas.client.generated.model.BlueprintAssociatedCourse;
-import canvas.client.generated.model.CanvasTerm;
+import edu.iu.uits.lms.canvas.model.BlueprintAssociatedCourse;
+import edu.iu.uits.lms.canvas.model.CanvasTerm;
 import lombok.Data;
 
 import java.io.Serializable;

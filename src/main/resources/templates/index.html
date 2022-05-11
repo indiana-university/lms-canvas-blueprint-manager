@@ -54,7 +54,7 @@
             <div th:if="!${messageInfoKey}" class="rvt-container--freshman">
                 <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
                 
-                <form th:object="${blueprintModel}" th:action="@{|/app/${context}/submit|}" method="post">
+                <form th:object="${blueprintModel}" th:action="@{|/app/${blueprintModel.courseId}/submit|}" method="post">
                     <input type="hidden" th:field="*{courseId}">
                     
                     <div class="rvt-m-top-sm">
@@ -86,12 +86,12 @@
                                             <label for="pointsCheckbox" class="rvt-m-right-sm">Points</label>
                                         </li>
                                         <li>
-                                            <input type="checkbox" name="blueprintRestrictions.due_dates" id="duedatesCheckbox"
+                                            <input type="checkbox" name="blueprintRestrictions.dueDates" id="duedatesCheckbox"
                                                    disabled="disabled" th:checked="*{dueDates}?checked">
                                             <label for="duedatesCheckbox" class="rvt-m-right-sm">Due Dates</label>
                                         </li>
                                         <li>
-                                            <input type="checkbox" name="blueprintRestrictions.availability_dates" id="availabilityCheckbox"
+                                            <input type="checkbox" name="blueprintRestrictions.availabilityDates" id="availabilityCheckbox"
                                                    disabled="disabled" th:checked="*{availabilityDates}?checked">
                                             <label for="availabilityCheckbox" class="rvt-m-right-sm">Availability Dates</label>
                                         </li>

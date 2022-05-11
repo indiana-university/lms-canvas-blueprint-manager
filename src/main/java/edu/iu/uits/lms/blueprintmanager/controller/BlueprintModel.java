@@ -1,7 +1,7 @@
 package edu.iu.uits.lms.blueprintmanager.controller;
 
-import canvas.client.generated.model.BlueprintRestriction;
-import canvas.helpers.BlueprintHelper;
+import edu.iu.uits.lms.canvas.helpers.BlueprintHelper;
+import edu.iu.uits.lms.canvas.model.BlueprintRestriction;
 import lombok.Data;
 
 import java.util.Arrays;

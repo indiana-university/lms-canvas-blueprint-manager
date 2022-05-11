@@ -1,6 +1,6 @@
 package edu.iu.uits.lms.blueprintmanager.controller;
 
-import canvas.client.generated.model.Course;
+import edu.iu.uits.lms.canvas.model.Course;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

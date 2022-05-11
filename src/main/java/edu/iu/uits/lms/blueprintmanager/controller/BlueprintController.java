@@ -1,15 +1,15 @@
 package edu.iu.uits.lms.blueprintmanager.controller;
 
-import canvas.client.generated.model.BlueprintMigrationStatus;
-import canvas.client.generated.model.BlueprintUpdateStatus;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintAssociationModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintConfirmationModel;
 import edu.iu.uits.lms.blueprintmanager.services.BlueprintConfigurationUpdateException;
 import edu.iu.uits.lms.blueprintmanager.services.BlueprintToolService;
+import edu.iu.uits.lms.canvas.model.BlueprintMigrationStatus;
+import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
 import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.LTIConstants;
-import edu.iu.uits.lms.lti.controller.LtiAuthenticationTokenAwareController;
-import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
+import edu.iu.uits.lms.lti.controller.OidcTokenAwareController;
+import edu.iu.uits.lms.lti.service.OidcTokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
 import javax.servlet.http.HttpSession;
 import java.util.Locale;
@@ -28,7 +29,7 @@ import java.util.Locale;
 @Controller
 @RequestMapping("/app")
 @Slf4j
-public class BlueprintController extends LtiAuthenticationTokenAwareController {
+public class BlueprintController extends OidcTokenAwareController {
 
     private static final String FORM_SESSION_KEY = "form.session.key";
 
@@ -41,6 +42,16 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
     @Autowired
     private CourseSessionService courseSessionService;
 
+    @RequestMapping("/launch")
+    @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
+    public String launch(Model model) {
+        OidcAuthenticationToken token = getTokenWithoutContext();
+        OidcTokenUtils oidcTokenUtils = new OidcTokenUtils(token);
+        String courseId = oidcTokenUtils.getCourseId();
+
+        return main(courseId, model);
+    }
+
     @RequestMapping("/{context}/index")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
     public String main (@PathVariable("context") String context, Model model) {
@@ -49,7 +60,7 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
     }
 
     private String main (String context, Model model, BlueprintSettings courseSettings) {
-        LtiAuthenticationToken token = getValidatedToken(context);
+        OidcAuthenticationToken token = getValidatedToken(context);
         if (courseSettings == null) {
             courseSettings = blueprintToolService.getCourseSettings(context);
         }
@@ -119,8 +130,9 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
                          @ModelAttribute BlueprintAssociationModel blueprintModel,
                          Model model, HttpSession session) {
 
-        LtiAuthenticationToken token = getValidatedToken(context);
-        String username = (String)token.getPrincipal();
+        OidcAuthenticationToken token = getValidatedToken(context);
+        OidcTokenUtils oidcTokenUtils = new OidcTokenUtils(token);
+        String username = oidcTokenUtils.getUserLoginId();
 
         if (blueprintModel == null || !blueprintModel.isInitialized()) {
             BlueprintAssociationModel blueprintAssociationModel = blueprintToolService.buildAssociationBackingModel(context, username);
@@ -140,8 +152,9 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
                        @ModelAttribute BlueprintModel blueprintModel,
                        Model model) {
 
-        LtiAuthenticationToken token = getValidatedToken(context);
-        String username = (String)token.getPrincipal();
+        OidcAuthenticationToken token = getValidatedToken(context);
+        OidcTokenUtils oidcTokenUtils = new OidcTokenUtils(token);
+        String username = oidcTokenUtils.getUserLoginId();
 
         // re-send association information via this call
         BlueprintMigrationStatus migrationStatus = blueprintToolService.performMigration(context, blueprintModel.isCopySettings(), blueprintModel.isSendNotifications(), username, false);
@@ -178,13 +191,14 @@ public class BlueprintController extends LtiAuthenticationTokenAwareController {
                           @ModelAttribute BlueprintConfirmationModel blueprintModel,
                           Model model, HttpSession session) {
 
-        LtiAuthenticationToken token = getValidatedToken(context);
-        String username = (String)token.getPrincipal();
+        OidcAuthenticationToken token = getValidatedToken(context);
+        OidcTokenUtils oidcTokenUtils = new OidcTokenUtils(token);
+        String username = oidcTokenUtils.getUserLoginId();
 
         BlueprintAssociationModel bam = null;
         BlueprintUpdateStatus updateStatus = blueprintToolService.updateAssociations(blueprintModel);
 
-        if (updateStatus.getSuccess()) {
+        if (updateStatus.isSuccess()) {
             BlueprintMigrationStatus migrationStatus = blueprintToolService.performMigration(context, true, false, username, blueprintModel.isPublishAfterSync());
             log.debug("{}", migrationStatus);
 
