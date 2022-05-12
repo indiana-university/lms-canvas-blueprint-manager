@@ -70,7 +70,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-io.version>2.8.0</commons-io.version>
         <jquery.version>3.5.1</jquery.version>
-        <lms-canvas-services.version>5.0.6-SNAPSHOT</lms-canvas-services.version>
+        <lms-canvas-services.version>5.0.6</lms-canvas-services.version>
         <lms-canvas-common-configuration.version>5.0.3</lms-canvas-common-configuration.version>
         <lms-canvas-lti-framework.version>5.1.6</lms-canvas-lti-framework.version>
         <lms-canvas-rivet.version>5.1.8.2_1</lms-canvas-rivet.version>
@@ -299,7 +299,7 @@
                     <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
                     <excludes>
                         <exclude>**/env.properties</exclude>
-                        <exclude>**/messages.properties</exclude>
+                        <exclude>**/blueprint.properties</exclude>
                     </excludes>
                 </configuration>
             </plugin>
