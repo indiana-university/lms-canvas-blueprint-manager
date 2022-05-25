@@ -61,10 +61,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -361,5 +364,23 @@ public class BlueprintToolServiceImplTest {
         OffsetDateTime endDate = CanvasDateFormatUtil.getCalculatedCourseEndDate();
         log.debug("End Date: {}", endDate);
         Assertions.assertNotNull(endDate);
+    }
+
+    @Test
+    void testCanvasTermSerializability() {
+        BlueprintAssociationModel bam = new BlueprintAssociationModel();
+        List<CanvasTerm> terms = new ArrayList<>();
+        CanvasTerm term = new CanvasTerm();
+        term.setName("The Term");
+        Map<String, CanvasTerm.TermOverride> overrides = new HashMap<>();
+        overrides.put("foo", new CanvasTerm.TermOverride());
+        term.setOverrides(overrides);
+        terms.add(term);
+        bam.setTermOptions(terms);
+        Assertions.assertTrue(bam instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions() instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0) instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0).getOverrides() instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0).getOverrides().get("foo") instanceof Serializable);
     }
 }
