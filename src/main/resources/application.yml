@@ -1,10 +1,30 @@
 spring:
   application:
     name: blueprint-manager
-  profiles:
-    active: redis
   session:
     store-type: none
+  config.import: optional:${app.fullFilePath}/${app.overridesFileName}, optional:${app.fullFilePath}/security.properties, classpath:canvas.properties, optional:classpath:git.properties, classpath:lti-registrations.properties
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+  datasource:
+    driverClassName: ${lms.db.driverClass}
+    jdbcUrl: ${lms.db.url}
+    username: ${lms.db.user}
+    password: ${lms.db.password}
+    type: org.springframework.jdbc.datasource.DriverManagerDataSource
+  cloud.vault.enabled: false
 #  output:
 #    ansi:
 #      enabled: ALWAYS
@@ -24,10 +44,38 @@ blueprint-manager:
   version: @app.version@
   env: ${app.env}
 
+app:
+  env: dev
+  fullFilePath: file:/usr/src/app/config
+  overridesFileName: overrides.properties
+
+management:
+  endpoint.info.enabled: true
+  endpoints.web.exposure.include: health,info
+  health.redis.enabled: false
+
 ---
 
 spring:
-  profiles: redis
+  config.activate.on-profile: redis-session
   session:
     store-type: redis
     redis.namespace: blueprint-manager-${app.version}:session
+management.health.redis.enabled: true
+
+---
+
+spring:
+  config:
+    activate.on-profile: vault
+    import: vault://
+  cloud.vault:
+    enabled: true
+    config:
+      lifecycle.lease-endpoints: sysleases
+    generic:
+      enabled: false
+    kv:
+      enabled: true
+      backend: ua-vpit/enterprise-systems/lms/kv
+      application-name: blueprint-manager

@@ -1,37 +1,73 @@
 package edu.iu.uits.lms.blueprintmanager.services;
 
-import canvas.client.generated.api.AccountsApi;
-import canvas.client.generated.api.BlueprintApi;
-import canvas.client.generated.api.CoursesApi;
-import canvas.client.generated.api.TermsApi;
-import canvas.client.generated.model.Account;
-import canvas.client.generated.model.BlueprintCourseUpdateStatus;
-import canvas.client.generated.model.CanvasTerm;
-import canvas.client.generated.model.Course;
-import canvas.client.generated.model.User;
-import canvas.helpers.CanvasDateFormatUtil;
-import canvas.helpers.EnrollmentHelper;
-import canvas.helpers.TermHelper;
+/*-
+ * #%L
+ * blueprint-manager
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintSettings;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintAssociationModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintConfirmationModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintCourseModel;
 import edu.iu.uits.lms.blueprintmanager.model.BlueprintTermModel;
+import edu.iu.uits.lms.canvas.helpers.CanvasDateFormatUtil;
+import edu.iu.uits.lms.canvas.helpers.EnrollmentHelper;
+import edu.iu.uits.lms.canvas.helpers.TermHelper;
+import edu.iu.uits.lms.canvas.model.Account;
+import edu.iu.uits.lms.canvas.model.BlueprintCourseUpdateStatus;
+import edu.iu.uits.lms.canvas.model.CanvasTerm;
+import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.canvas.model.User;
+import edu.iu.uits.lms.canvas.services.AccountService;
+import edu.iu.uits.lms.canvas.services.BlueprintService;
+import edu.iu.uits.lms.canvas.services.CourseService;
+import edu.iu.uits.lms.canvas.services.TermService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -46,23 +82,23 @@ public class BlueprintToolServiceImplTest {
 
     @Autowired
     @Mock
-    private CoursesApi coursesApi;
+    private CourseService coursesApi;
 
     @Autowired
     @Mock
-    private TermsApi termsApi;
+    private TermService termsApi;
 
     @Autowired
     @Mock
-    private AccountsApi accountsApi;
+    private AccountService accountsApi;
 
     @Autowired
     @Mock
-    private BlueprintApi blueprintApi;
+    private BlueprintService blueprintApi;
 
     private static final String ID = "asdf";
 
-    @Before
+    @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
     }
@@ -85,7 +121,7 @@ public class BlueprintToolServiceImplTest {
                 .thenReturn(null);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
-        Assert.assertFalse(courseSettings.hasEnrollments());
+        Assertions.assertFalse(courseSettings.hasEnrollments());
     }
 
     @Test
@@ -103,7 +139,7 @@ public class BlueprintToolServiceImplTest {
                 .thenReturn(users);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
-        Assert.assertTrue(courseSettings.hasEnrollments());
+        Assertions.assertTrue(courseSettings.hasEnrollments());
     }
 
     @Test
@@ -113,7 +149,7 @@ public class BlueprintToolServiceImplTest {
         Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
-        Assert.assertFalse(courseSettings.hasEnrollments());
+        Assertions.assertFalse(courseSettings.hasEnrollments());
     }
 
     @Test
@@ -135,10 +171,10 @@ public class BlueprintToolServiceImplTest {
         Mockito.when(termsApi.getTermBySisId(TermHelper.TERM_NO_EXPIRATION)).thenReturn(noExpTerm);
 
         BlueprintSettings settings = blueprintToolService.updateCourseSettings(blueprintModel);
-        Assert.assertNotNull(settings);
+        Assertions.assertNotNull(settings);
     }
 
-    @Test(expected = BlueprintConfigurationUpdateException.class)
+    @Test
     public void testBadUpdate() {
         Mockito.when(coursesApi.getCourse(ID)).thenReturn(baseCourse(null));
         Mockito.doThrow(BlueprintConfigurationUpdateException.class)
@@ -147,7 +183,8 @@ public class BlueprintToolServiceImplTest {
         BlueprintModel blueprintModel = new BlueprintModel();
         blueprintModel.setCourseId(ID);
 
-        blueprintToolService.updateCourseSettings(blueprintModel);
+        BlueprintConfigurationUpdateException t = Assertions.assertThrows(BlueprintConfigurationUpdateException.class, () ->
+              blueprintToolService.updateCourseSettings(blueprintModel));
     }
 
     @Test
@@ -169,10 +206,10 @@ public class BlueprintToolServiceImplTest {
 
         BlueprintConfirmationModel bcm = blueprintToolService.buildConfirmationBackingModel("bp1", bam);
 
-        Assert.assertEquals("bp1", bcm.getBlueprintCourseId());
-        Assert.assertEquals(2, bcm.getAddedCourses().size());
-        Assert.assertEquals(2, bcm.getRemovedCourses().size());
-        Assert.assertEquals(4, bcm.getFinalCourses().size());
+        Assertions.assertEquals("bp1", bcm.getBlueprintCourseId());
+        Assertions.assertEquals(2, bcm.getAddedCourses().size());
+        Assertions.assertEquals(2, bcm.getRemovedCourses().size());
+        Assertions.assertEquals(4, bcm.getFinalCourses().size());
 
     }
 
@@ -221,12 +258,12 @@ public class BlueprintToolServiceImplTest {
         courses.add(c3);
 
         List<CanvasTerm> possibleTerms = blueprintToolService.getPossibleTerms(courses);
-        Assert.assertNotNull(possibleTerms);
-        Assert.assertEquals(3, possibleTerms.size());
+        Assertions.assertNotNull(possibleTerms);
+        Assertions.assertEquals(3, possibleTerms.size());
 
-        Assert.assertEquals("t3", possibleTerms.get(0).getId());
-        Assert.assertEquals("t1", possibleTerms.get(1).getId());
-        Assert.assertEquals("t2", possibleTerms.get(2).getId());
+        Assertions.assertEquals("t3", possibleTerms.get(0).getId());
+        Assertions.assertEquals("t1", possibleTerms.get(1).getId());
+        Assertions.assertEquals("t2", possibleTerms.get(2).getId());
     }
 
     @Test
@@ -318,7 +355,7 @@ public class BlueprintToolServiceImplTest {
         Mockito.when(accountsApi.getParentAccounts("abc")).thenReturn(accountList4);
 
         List<Course> availableCourses = blueprintToolService.getAvailableCourses(userId, accountId);
-        Assert.assertEquals(2, availableCourses.size());
+        Assertions.assertEquals(2, availableCourses.size());
 
     }
 
@@ -326,6 +363,24 @@ public class BlueprintToolServiceImplTest {
     public void fooTest() {
         OffsetDateTime endDate = CanvasDateFormatUtil.getCalculatedCourseEndDate();
         log.debug("End Date: {}", endDate);
-        Assert.assertNotNull(endDate);
+        Assertions.assertNotNull(endDate);
+    }
+
+    @Test
+    void testCanvasTermSerializability() {
+        BlueprintAssociationModel bam = new BlueprintAssociationModel();
+        List<CanvasTerm> terms = new ArrayList<>();
+        CanvasTerm term = new CanvasTerm();
+        term.setName("The Term");
+        Map<String, CanvasTerm.TermOverride> overrides = new HashMap<>();
+        overrides.put("foo", new CanvasTerm.TermOverride());
+        term.setOverrides(overrides);
+        terms.add(term);
+        bam.setTermOptions(terms);
+        Assertions.assertTrue(bam instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions() instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0) instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0).getOverrides() instanceof Serializable);
+        Assertions.assertTrue(bam.getTermOptions().get(0).getOverrides().get("foo") instanceof Serializable);
     }
 }

@@ -1,81 +1,102 @@
 package edu.iu.uits.lms.blueprintmanager.services;
 
-import canvas.client.generated.model.BlueprintMigration;
-import canvas.client.generated.model.BlueprintMigrationStatus;
-import canvas.client.generated.model.BlueprintUpdateStatus;
-import canvas.client.generated.model.Course;
+/*-
+ * #%L
+ * blueprint-manager
+ * %%
+ * Copyright (C) 2015 - 2022 Indiana University
+ * %%
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * 3. Neither the name of the Indiana University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software without
+ *    specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+
+import com.nimbusds.jose.shaded.json.JSONObject;
+import edu.iu.uits.lms.blueprintmanager.config.ToolConfig;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintController;
+import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintSettings;
-import edu.iu.uits.lms.common.session.CourseSessionService;
-import edu.iu.uits.lms.lti.security.LtiAuthenticationToken;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import edu.iu.uits.lms.blueprintmanager.model.BlueprintAssociationModel;
+import edu.iu.uits.lms.canvas.model.BlueprintMigration;
+import edu.iu.uits.lms.canvas.model.BlueprintMigrationStatus;
+import edu.iu.uits.lms.canvas.model.BlueprintRestriction;
+import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
+import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.lti.LTIConstants;
+import edu.iu.uits.lms.lti.service.TestUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.servlet.View;
+import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.mockito.Matchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+@WebMvcTest(controllers = BlueprintController.class, properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
+@Import(ToolConfig.class)
 public class BlueprintControllerTest {
 
-    @Autowired
-    @InjectMocks
-    private BlueprintController blueprintController;
-
-    @Autowired
-    @Mock
+    @MockBean
     private BlueprintToolService blueprintToolService;
 
-    @Autowired
-    @Mock
-    private CourseSessionService courseSessionService;
-
-    @Autowired
-    @Mock
+    @MockBean
     private MessageSource messageSource;
 
+    @Autowired
     private MockMvc mockMvc;
-
-    @Mock
-    private View view;
 
     private static final String ID = "asdf";
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
-
         //setup lti token
-        List authoritiesList = Arrays.asList(new SimpleGrantedAuthority("Instructor"),
-                new SimpleGrantedAuthority("ROLE_LTI_INSTRUCTOR"));
 
-        final LtiAuthenticationToken ltiAuthenticationToken = new LtiAuthenticationToken("user1",
-                ID,
-                "test.uits.iu.edu",
-                authoritiesList,
-                "lms_lti_blueprint");
+        Map<String, Object> extraAttributes = new HashMap<>();
 
-        SecurityContextHolder.getContext().setAuthentication(ltiAuthenticationToken);
+        JSONObject customMap = new JSONObject();
+        customMap.put(LTIConstants.CUSTOM_CANVAS_COURSE_ID_KEY, ID);
+        customMap.put(LTIConstants.CUSTOM_CANVAS_USER_LOGIN_ID_KEY, "user1");
 
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(blueprintController)
-                .setSingleView(view)
-                .build();
+        OidcAuthenticationToken token = TestUtils.buildToken("userId", LTIConstants.INSTRUCTOR_AUTHORITY,
+              extraAttributes, customMap);
+
+        SecurityContextHolder.getContext().setAuthentication(token);
     }
 
     private Course baseCourse(String id) {
@@ -165,6 +186,11 @@ public class BlueprintControllerTest {
         BlueprintSettings settings = new BlueprintSettings();
         settings.setCourse(course);
         settings.hasEnrollments(false);
+
+        BlueprintModel model = new BlueprintModel();
+        model.setCourseId(ID);
+        model.setBlueprintRestrictions(new BlueprintRestriction());
+        settings.setBlueprintModel(model);
         Mockito.when(blueprintToolService.getCourseSettings(ID)).thenReturn(settings);
 
         ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.get("/app/{ID}/index", ID));
@@ -184,7 +210,7 @@ public class BlueprintControllerTest {
         Mockito.when(blueprintToolService.getCourseSettings(ID)).thenReturn(settings);
         Mockito.when(blueprintToolService.updateCourseSettings(any())).thenReturn(settings);
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("index"));
@@ -203,7 +229,7 @@ public class BlueprintControllerTest {
         Mockito.when(messageSource.getMessage("settings.failure", null, Locale.getDefault())).thenReturn("Foobar");
 
         Mockito.doThrow(BlueprintConfigurationUpdateException.class).when(blueprintToolService).updateCourseSettings(any());
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("index"));
@@ -219,8 +245,9 @@ public class BlueprintControllerTest {
         updateStatus.setMessage("boom!");
 
         Mockito.when(blueprintToolService.updateAssociations(any())).thenReturn(updateStatus);
+        Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
@@ -239,9 +266,9 @@ public class BlueprintControllerTest {
         blueprintMigration.setId("1");
         migrationStatus.setBlueprintMigration(blueprintMigration);
         Mockito.when(blueprintToolService.performMigration(any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(migrationStatus);
+        Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
@@ -258,8 +285,9 @@ public class BlueprintControllerTest {
         BlueprintMigrationStatus migrationStatus = new BlueprintMigrationStatus();
         migrationStatus.setMessage("boom!");
         Mockito.when(blueprintToolService.performMigration(any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(migrationStatus);
+        Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
