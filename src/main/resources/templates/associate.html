@@ -77,7 +77,7 @@
                 </button>
             </div>
 
-            <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
+            <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
 
             <!-- display a message if criteria was not met for normal page usage -->
             <p class="rvt-ts-18">If you don't see the courses you need to associate, your Blueprint course may be in the wrong node.  For more information see: <a href="https://kb.iu.edu/d/apvn" target="_blank">https://kb.iu.edu/d/apvn</a></p>
@@ -118,7 +118,7 @@
                                     <div th:id="|term_${termModel.termId}_section|" class="toggler" aria-hidden="false">
                                         <fieldset th:id="|term_${termModel.termId}_set|">
                                             <legend class="sr-only" th:text="|${termModel.termName} courses to associate or de-associate|">Checkbox list</legend>
-                                            <ul class="blueprintNoStyleList">
+                                            <ul class="rvt-list-plain">
                                                 <li th:each="courseModel,courseStat : ${termModel.courses}">
                                                     <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].courseId|" th:value="${courseModel.courseId}">
                                                     <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].courseName|" th:id="|${courseModel.courseId}_courseName|" th:value="${courseModel.courseName}">

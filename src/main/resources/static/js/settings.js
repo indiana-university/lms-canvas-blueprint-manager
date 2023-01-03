@@ -54,18 +54,15 @@ jQuery(document).ready(function($) {
         }
     });
 
+    $('.lobt-button').click(function() {
+        // toggle the chevron icon
+        var chevron = $(this).find(".lobt-toggle");
+        var chevronName = chevron.attr("name") == "chevron-down" ? "chevron-right" : "chevron-down";
+        chevron.attr("name", chevronName);
+    });
+
     //Loop through all item types
     $.each( itemNameList, function( index, val ) {
-        $('#' + val + 'TitleItem').click(function() {
-            var toggleSection = $("#" + val + "Toggler");
-            toggleSection.slideToggle("slow");  
-            toggleSection.attr("aria-hidden", toggleSection.attr('aria-hidden')=='true' ? 'false' : 'true');
-                   
-            var toggleButton = $("#" + val + "Chevron");
-            toggleButton.toggleClass("fa-chevron-right fa-chevron-down");
-            toggleButton.attr("aria-expanded", toggleButton.attr('aria-expanded')=='true' ? 'false' : 'true');
-        });
-
         var fieldset = $('#' + val + 'Checkboxes input[type="checkbox"]');
         var iconId = $("#" + val + "LockStatus");
         lockStatusCheck(fieldset, iconId);
@@ -120,11 +117,9 @@ function pageStatusChecks() {
 
 function lockStatusCheck(fieldset, iconId) {
     if(fieldset.is(':checked')){
-        iconId.removeClass("fa-unlock-alt");
-        iconId.addClass("fa-lock");
+        iconId.attr("name", "lock-closed");
     } else {
-        iconId.removeClass("fa-lock");
-        iconId.addClass("fa-unlock-alt");
+        iconId.attr("name", "lock-open");
     }
 }
 
@@ -136,7 +131,7 @@ function setLockedAttributeText(itemKey) {
 
     var theLabel = $('#' + itemKey + 'LockedAttributes');
     if (checkedLabels.length > 0) {
-        theLabel.html(checkedLabels.join(", ").replace(/,(?=[^,]*$)/, ' &'));
+        theLabel.html(checkedLabels.join(", ").replace(/,(?=[^,]*$)/, ' &') + " locked");
     } else {
         theLabel.html($('#lobtEnabled').data('empty_text'));
     }

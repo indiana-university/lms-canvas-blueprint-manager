@@ -47,7 +47,7 @@
             <form th:object="${confirmationModel}" th:action="@{|/app/${context}/confirm|}" method="post">
                 <input type="hidden" th:field="*{blueprintCourseId}">
                 <input type="hidden" th:field="*{publishAfterSync}">
-                <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
+                <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
 
                 <!-- display a message if criteria was not met for normal page usage -->
                 <p class="rvt-ts-18">This is the final list of courses associated with the blueprint, as well as a breakdown of the actions.</p>
