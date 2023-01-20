@@ -49,8 +49,9 @@ function buttonLoading(button, formSubmit = true) {
         if (button.form) {
             button.form.submit();
         } else {
-            // this is the sync dialog
-            document.getElementById("blueprint-form").submit();
+            // the form id will be found in a data attribute
+            const formId = button.dataset.formId;
+            document.getElementById(formId).submit();
         }
     }
 }
