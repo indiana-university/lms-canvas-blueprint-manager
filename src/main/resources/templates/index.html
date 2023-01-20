@@ -178,7 +178,11 @@
                         </ul>
                     </fieldset>
 
-                    <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
+                    <div class="rvt-button-group rvt-p-top-lg">
+                        <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
+                            <span class="rvt-button__content">Update Settings</span>
+                            <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        </button>
                         <button id="associateCoursesButton" class="rvt-button rvt-button--secondary" th:disabled="*{!enableBlueprint}?disabled"
                                 th:aria-disabled="*{!enableBlueprint}?true" data-action="associate" onclick="buttonLoading(this)">
                             <span class="rvt-button__content">Associate Courses</span>
@@ -186,10 +190,6 @@
                         </button>
                         <button id="syncButton" type="button" class="rvt-button rvt-button--secondary" th:disabled="${disableSync}" th:aria-disabled="${disableSync}"
                                 data-rvt-dialog-trigger="dialog-sync-options">Sync</button>
-                        <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
-                            <span class="rvt-button__content">Update Settings</span>
-                            <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
-                        </button>
                         <input id="formSubmitAction" type="hidden" name="action" />
                     </div>
 
