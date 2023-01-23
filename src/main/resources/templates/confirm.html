@@ -42,54 +42,52 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="rvt-grid">
-        <div class="rvt-grid__item">
+    <div class="rvt-container-xl">
+        <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
+        <!-- display a message if criteria was not met for normal page usage -->
+        <p class="rvt-ts-18">This is the final list of courses associated with the blueprint, as well as a breakdown of the actions.</p>
+
             <form th:object="${confirmationModel}" th:action="@{|/app/${context}/confirm|}" method="post">
                 <input type="hidden" th:field="*{blueprintCourseId}">
                 <input type="hidden" th:field="*{publishAfterSync}">
-                <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
 
-                <!-- display a message if criteria was not met for normal page usage -->
-                <p class="rvt-ts-18">This is the final list of courses associated with the blueprint, as well as a breakdown of the actions.</p>
-                <div class="rvt-box">
-                    <div class="rvt-box__body">
-                        <div class="rvt-grid">
-                            <div class="rvt-grid__item-lg">
-                                <h2 class="rvt-ts-26">Final List of Associated Courses</h2>
-                                <p>
-                                <ul class="rvt-plain-list" id="summaryListFinal">
-                                    <li id="summaryNone" th:if="*{#lists.isEmpty(finalCourses)}">None</li>
-                                    <li th:each="course : *{finalCourses}"
-                                        th:id="'final_' + ${course.courseId}"
-                                        th:text="|${course.courseName} (${course.termName})|">course name</li>
-                                </ul>
-                                </p>
-                            </div>
-                            <div class="rvt-grid__item-lg">
-                                <h2 class="rvt-ts-26">Summary of Actions</h2>
-                                <p>
-                                <h3 class="rvt-ts-20">Added</h3>
-                                <ul class="rvt-plain-list" id="summaryListAdded">
-                                    <li id="addedNone" th:if="*{#lists.isEmpty(addedCourses)}">None</li>
-                                    <li th:each="course,courseStat : *{addedCourses}"
-                                        th:id="'added_' + ${course.courseId}"
-                                        th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
-                                        <input type="hidden" th:name="|addedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
-                                    </li>
-                                </ul>
-                                </p>
-                                <p th:if="*{publishAfterSync}">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
-                                <p>
-                                <h3 class="rvt-ts-20">Removed</h3>
-                                <ul class="rvt-plain-list"  id="summaryListRemoved">
-                                    <li id="removedNone" th:if="*{#lists.isEmpty(removedCourses)}">None</li>
-                                    <li th:each="course,courseStat : *{removedCourses}"
-                                        th:id="'removed_' + ${course.courseId}"
-                                        th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
-                                        <input type="hidden" th:name="|removedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
-                                </ul>
-                                </p>
-                            </div>
+                <div class="rvt-container-xl">
+                    <div class="rvt-row rvt-border-all rvt-border-radius rvt-p-all-sm">
+                        <div class="rvt-cols-5-lg">
+                            <h2 class="rvt-ts-26">Final List of Associated Courses</h2>
+                            <p>
+                            <ul class="rvt-list-plain" id="summaryListFinal">
+                                <li id="summaryNone" th:if="*{#lists.isEmpty(finalCourses)}">None</li>
+                                <li th:each="course : *{finalCourses}"
+                                    th:id="'final_' + ${course.courseId}"
+                                    th:text="|${course.courseName} (${course.termName})|">course name</li>
+                            </ul>
+                            </p>
+                        </div>
+                        <div class="rvt-cols-7-lg">
+                            <h2 class="rvt-ts-26">Summary of Actions</h2>
+                            <p>
+                            <h3 class="rvt-ts-20">Added</h3>
+                            <ul class="rvt-list-plain" id="summaryListAdded">
+                                <li id="addedNone" th:if="*{#lists.isEmpty(addedCourses)}">None</li>
+                                <li th:each="course,courseStat : *{addedCourses}"
+                                    th:id="'added_' + ${course.courseId}"
+                                    th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
+                                    <input type="hidden" th:name="|addedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
+                                </li>
+                            </ul>
+                            </p>
+                            <p th:if="*{publishAfterSync}">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
+                            <p>
+                            <h3 class="rvt-ts-20">Removed</h3>
+                            <ul class="rvt-list-plain"  id="summaryListRemoved">
+                                <li id="removedNone" th:if="*{#lists.isEmpty(removedCourses)}">None</li>
+                                <li th:each="course,courseStat : *{removedCourses}"
+                                    th:id="'removed_' + ${course.courseId}"
+                                    th:inline="text">[[${course.courseName}]] ([[${course.termName}]])
+                                    <input type="hidden" th:name="|removedCourses[__${courseStat.index}__].courseId|" th:value="${course.courseId}">
+                            </ul>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -97,22 +95,22 @@
                     <button id="btnCancel" class="rvt-button rvt-button--secondary"
                             data-action="cancel" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Cancel</span>
-                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
                     </button>
                     <button id="btnEdit" class="rvt-button rvt-button--secondary"
                             data-action="edit" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Edit</span>
-                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
                     </button>
                     <button id="btnSubmit" class="rvt-button"
                             data-action="submit" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Submit</span>
-                        <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
                     </button>
                     <input id="formSubmitAction" type="hidden" name="action" />
                 </div>
             </form>
-        </div>
+
     </div>
 </div>
 <th:block layout:fragment="script">

@@ -73,13 +73,12 @@
         <lms-canvas-services.version>5.0.7</lms-canvas-services.version>
         <lms-canvas-common-configuration.version>5.0.3</lms-canvas-common-configuration.version>
         <lms-canvas-lti-framework.version>5.1.9</lms-canvas-lti-framework.version>
-        <lms-canvas-rivet.version>5.1.8.2_1</lms-canvas-rivet.version>
+        <lms-canvas-rivet.version>5.2.2.0_1</lms-canvas-rivet.version>
         <lms-canvas-redis-config.version>5.0.7</lms-canvas-redis-config.version>
         <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
         <springdoc-openapi-ui.version>1.6.7</springdoc-openapi-ui.version>
         <spring-cloud-starter-vault-config.version>3.0.5</spring-cloud-starter-vault-config.version>
         <spring-security-bom.version>5.5.2</spring-security-bom.version>
-        <webjars-fontawesome.version>4.7.0</webjars-fontawesome.version>
         <webjars-locator.version>0.40</webjars-locator.version>
 
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
@@ -163,11 +162,6 @@
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
             <version>${jquery.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>font-awesome</artifactId>
-            <version>${webjars-fontawesome.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -42,88 +42,86 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="rvt-grid">
-        <div class="rvt-grid__item">
+    <div class="rvt-container-xl">
+        <div>
 
             <!-- display a message if criteria was not met for normal page usage -->
             <p class="rvt-ts-18" th:if="${messageInfoKey}" th:text="#{${messageInfoKey}}"></p>
 
-            <div th:if="${syncButtonSuccess}" class="rvt-alert rvt-alert--success rvt-m-bottom-md" role="alertdialog" aria-labelledby="sync-success-title">
-                <h1 class="rvt-alert__title" id="sync-success-title">Success</h1>
-                <p class="rvt-alert__message" th:utext="#{syncButtonSuccess}">Sync started message</p>
-                <button class="rvt-alert__dismiss" data-alert-close>
-                    <span class="v-hide">Dismiss this alert</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
+            <div th:if="${syncButtonSuccess}" class="rvt-alert rvt-alert--success [ rvt-m-bottom-md ]" role="alert" aria-labelledby="sync-alert-title" data-rvt-alert="success">
+                <div class="rvt-alert__title" id="sync-success-title">Success</div>
+                <p class="rvt-alert__message"th:utext="#{syncButtonSuccess}">Sync started message</p>
+                <button class="rvt-alert__dismiss" data-rvt-alert-close>
+                    <span class="rvt-sr-only">Close</span>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                        <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z" />
                     </svg>
                 </button>
             </div>
-            <div th:if="${syncButtonFail}" class="rvt-alert rvt-alert--error rvt-m-bottom-md" role="alertdialog" aria-labelledby="sync-fail-title">
-                <h1 class="rvt-alert__title" id="sync-fail-title">Error</h1>
+
+            <div th:if="${syncButtonFail}" class="rvt-alert rvt-alert--danger [ rvt-m-bottom-md ]" role="alert" aria-labelledby="sync-fail-title" data-rvt-alert="error">
+                <div class="rvt-alert__title" id="sync-fail-title">Error</div>
                 <p class="rvt-alert__message" th:utext="#{syncButtonFail}">Sync fail message</p>
-                <button class="rvt-alert__dismiss" data-alert-close>
-                    <span class="v-hide">Dismiss this alert</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
-                    </svg>
-                </button>
             </div>
-            <div th:if="${submitSuccess}" class="rvt-alert rvt-alert--success rvt-m-bottom-md rvt-m-top-sm" role="alertdialog" aria-labelledby="success-alert-title">
-                <h1 class="rvt-alert__title" id="success-alert-title">Success</h1>
+
+            <div th:if="${submitSuccess}" class="rvt-alert rvt-alert--success [ rvt-m-bottom-md ]" role="alert" aria-labelledby="success-alert-title" data-rvt-alert="success">
+                <div class="rvt-alert__title" id="success-alert-title">Success</div>
                 <p class="rvt-alert__message">The Blueprint settings were successfully applied to the course.</p>
-                <button class="rvt-alert__dismiss" data-alert-close>
-                    <span class="v-hide">Dismiss this alert</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M10,8l5.63-5.63a1.39,1.39,0,0,0-2-2L8,6,2.37.41a1.39,1.39,0,0,0-2,2L6,8,.41,13.63a1.39,1.39,0,1,0,2,2L8,10l5.63,5.63a1.39,1.39,0,0,0,2-2Z" style="fill: #333"/>
+                <button class="rvt-alert__dismiss" data-rvt-alert-close>
+                    <span class="rvt-sr-only">Close</span>
+                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                        <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z" />
                     </svg>
                 </button>
             </div>
-            <div th:if="${submitFailure}" class="rvt-alert rvt-alert--error rvt-m-bottom-md rvt-m-top-sm" role="alert" aria-labelledby="error-alert-title">
-                <h1 class="rvt-alert__title" id="error-alert-title">Error</h1>
+
+            <div th:if="${submitFailure}" class="rvt-alert rvt-alert--danger [ rvt-m-bottom-md ]" role="alert" aria-labelledby="error-alert-title" data-rvt-alert="error">
+                <div class="rvt-alert__title" id="error-alert-title">Error</div>
                 <p class="rvt-alert__message" th:utext="${submitFailureMessage}">Error message!</p>
             </div>
 
             <!-- regular mode -->
-            <div th:if="!${messageInfoKey}" class="rvt-container--freshman">
-                <h1 class="rvt-ts-32" th:text="#{blueprint.pageTitle}">Page title</h1>
+            <div th:if="!${messageInfoKey}" class="rvt-container-xl">
+                <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
                 
-                <form th:object="${blueprintModel}" th:action="@{|/app/${blueprintModel.courseId}/submit|}" method="post">
+                <form id="blueprint-form" th:object="${blueprintModel}" th:action="@{|/app/${blueprintModel.courseId}/submit|}" method="post">
                     <input type="hidden" th:field="*{courseId}">
                     
-                    <div class="rvt-m-top-sm">
+                    <div class="rvt-m-top-sm rvt-checkbox">
                         <input type="checkbox" name="enableBlueprint" id="enableBlueprint" th:checked="*{enableBlueprint}?checked" />
                         <label for="enableBlueprint" class="rvt-m-right-sm">Enable course as a Blueprint Course</label>
                     </div>
                     
-                    <fieldset id="blueprintEnabled" class="rvt-m-left-lg" th:style="*{!enableBlueprint} ? 'display:none'">
-                        <legend class="sr-only">Select how you want to define locked objects in this course</legend>
-                        <ul class="rvt-plain-list">
+                    <fieldset id="blueprintEnabled" class="rvt-m-left-lg rvt-fieldset" th:style="*{!enableBlueprint} ? 'display:none'">
+                        <legend class="rvt-sr-only">Select how you want to define locked objects in this course</legend>
+                        <ul class="rvt-list-plain">
                             <li>
-                                <input type="radio" name="radioOption" id="gloRadio"
-                                       th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel.RADIO_OPTION).restrictions}"
-                                       th:checked="${blueprintModel.blueprintRestrictionsByObjectType.isEmpty()}">
-                                <label for="gloRadio" class="rvt-m-right-sm">General Locked Objects</label>
-        
-                                <fieldset id="gloEnabled">
-                                    <legend class="rvt-ts-12 rvt-m-left-lg" th:text="#{blueprint.generallocked.description}">Blueprint locked object settings</legend>
-                                    <ul class="blueprintNoStyleList"
+                                <div class="rvt-radio">
+                                    <input type="radio" name="radioOption" id="gloRadio"
+                                           th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel.RADIO_OPTION).restrictions}"
+                                           th:checked="${blueprintModel.blueprintRestrictionsByObjectType.isEmpty()}">
+                                    <label for="gloRadio" class="rvt-m-right-sm">General Locked Objects</label>
+                                </div>
+                                <fieldset id="gloEnabled" class="rvt-fieldset">
+                                    <legend class="rvt-ts-14 rvt-m-left-lg" th:text="#{blueprint.generallocked.description}">Blueprint locked object settings</legend>
+                                    <ul class="rvt-list-plain rvt-p-bottom-sm"
                                         th:object="${blueprintModel.blueprintRestrictions}">
-                                        <li>
+                                        <li class="rvt-checkbox">
                                             <input type="checkbox" name="blueprintRestrictions.content" id="contentCheckbox"
                                                    disabled="disabled" th:checked="*{content}?checked">
                                             <label for="contentCheckbox" class="rvt-m-right-sm">Content</label>
                                         </li>
-                                        <li>
+                                        <li class="rvt-checkbox">
                                             <input type="checkbox" name="blueprintRestrictions.points" id="pointsCheckbox"
                                                    disabled="disabled" th:checked="*{points}?checked">
                                             <label for="pointsCheckbox" class="rvt-m-right-sm">Points</label>
                                         </li>
-                                        <li>
+                                        <li class="rvt-checkbox">
                                             <input type="checkbox" name="blueprintRestrictions.dueDates" id="duedatesCheckbox"
                                                    disabled="disabled" th:checked="*{dueDates}?checked">
                                             <label for="duedatesCheckbox" class="rvt-m-right-sm">Due Dates</label>
                                         </li>
-                                        <li>
+                                        <li class="rvt-checkbox">
                                             <input type="checkbox" name="blueprintRestrictions.availabilityDates" id="availabilityCheckbox"
                                                    disabled="disabled" th:checked="*{availabilityDates}?checked">
                                             <label for="availabilityCheckbox" class="rvt-m-right-sm">Availability Dates</label>
@@ -132,40 +130,37 @@
                                 </fieldset>
                             </li>
                             <li>
-                                <input type="radio" name="radioOption" id="lobtRadio"
-                                       th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel.RADIO_OPTION).restrictionsByType}"
-                                       th:checked="${not blueprintModel.blueprintRestrictionsByObjectType.isEmpty()}">
-                                <label for="lobtRadio">Locked Objects by Type</label>
+                                <div class="rvt-radio">
+                                    <input type="radio" name="radioOption" id="lobtRadio"
+                                           th:value="${T(edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel.RADIO_OPTION).restrictionsByType}"
+                                           th:checked="${not blueprintModel.blueprintRestrictionsByObjectType.isEmpty()}">
+                                    <label for="lobtRadio">Locked Objects by Type</label>
+                                </div>
                                 
-                                <fieldset id="lobtEnabled">
-                                    <legend class="rvt-ts-12 rvt-m-left-lg" th:text="#{blueprint.typelocked.description}"></legend>
-                                    <ul class="blueprintNoStyleList" th:attr="data-empty_text=#{locked_attributes.none}">
+                                <fieldset id="lobtEnabled" class="rvt-fieldset rvt-width-3-xl" th:attr="data-empty_text=#{locked_attributes.none}">
+                                    <legend class="rvt-ts-14 rvt-m-left-lg rvt-p-tb-xs" th:text="#{blueprint.typelocked.description}"></legend>
+                                    <ul class="rvt-list-plain lobt-options rvt-border-top rvt-border-left rvt-border-right rvt-p-left-sm rvt-m-top-none" >
                                         <li th:each="mapEntry, iterStat : ${blueprintModel.getObjectMap()}">
-                                            <div class="toggleWrapper" th:classappend="${iterStat.index == iterStat.size-1} ? 'toggleWrapperBottom'">
-                                                <div th:id="|${mapEntry.key}TitleItem|" class="titleItem rvt-grid">
-                                                    <div class="rvt-grid__item-1-md-up">
-                                                        <button type="button" th:id="|${mapEntry.key}Chevron|" 
-                                                                class="rvt-button rvt-button--plain rvt-button--small fa fa-chevron-right dropdownoverride"
-                                                                aria-expanded="false" th:attr="aria-controls=|${mapEntry.key}Toggler|">
-                                                            <span class="rvt-sr-only" th:text="|#{|type.${mapEntry.key}.title|} settings|">For collapsing locked object options</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="rvt-grid__item-5-md-up" th:text="#{|type.${mapEntry.key}.title|}">
-                                                        Title
-                                                    </div>
-                                                    <div class="rvt-grid__item-1-md-up">
-                                                        <i th:id="|${mapEntry.key}LockStatus|" class="fa fa-unlock-alt" aria-hidden="true"></i>
-                                                    </div>
-                                                    <div class="rvt-grid__item-5-md-up rvt-ts-12" th:id="|${mapEntry.key}LockedAttributes|" th:text="#{locked_attributes.none}">
-                                                        More text!
-                                                    </div>
-                                                </div>
-                                                <div th:id="|${mapEntry.key}Toggler|" class="hide" aria-hidden="true">
-                                                    <fieldset th:id="|${mapEntry.key}Checkboxes|">
-                                                        <legend class="sr-only" th:text="|Lock options for #{|type.${mapEntry.key}.title|}|"></legend>
-                                                        <ul class="blueprintNoStyleList"
-                                                            th:each="item : ${mapEntry.value}">
-                                                            <li>
+                                            <div class="rvt-accordion" data-rvt-accordion="test-accordion">
+                                                <h2 class="rvt-accordion__summary rvt-border-top-none">
+                                                    <button type="button" class="rvt-accordion__toggle rvt-p-all-sm lobt-button" th:id="|label_${mapEntry.key}|"
+                                                            th:attr="data-rvt-accordion-trigger=|content_${mapEntry.key}|, aria-controls=|content_${mapEntry.key}|, aria-describedby=|${mapEntry.key}LockedAttributes|">
+                                                        <rvt-icon name="chevron-right" class="rvt-p-right-xs lobt-toggle"></rvt-icon>
+                                                        <span class="rvt-accordion__toggle-text rvt-ts-16" th:text="#{|type.${mapEntry.key}.title|}">title</span>
+                                                        <span class="rvt-accordion__toggle-icon">
+                                                            <rvt-icon th:id="|${mapEntry.key}LockStatus|" name="lock-closed" aria-hidden="true" class="rvt-p-right-xs"></rvt-icon>
+                                                            <span aria-hidden="true" class="rvt-ts-12 rvt-p-right-xs" th:id="|${mapEntry.key}LockedAttributes|" th:text="#{locked_attributes.none}">
+                                                                More text!
+                                                            </span>
+                                                        </span>
+                                                    </button>
+                                                </h2>
+                                                <div th:id="|content_${mapEntry.key}|" class="rvt-accordion__panel rvt-p-top-none" role="region"
+                                                     th:attr="aria-labelledby=|label_${mapEntry.key}|, data-rvt-accordion-panel=|content_${mapEntry.key}|" >
+                                                    <fieldset th:id="|${mapEntry.key}Checkboxes|" class="rvt-fieldset">
+                                                        <legend class="rvt-sr-only" th:text="|Lock options for #{|type.${mapEntry.key}.title|}|"></legend>
+                                                        <ul class="rvt-list-plain">
+                                                            <li class="rvt-checkbox" th:each="item : ${mapEntry.value}">
                                                                 <input type="checkbox" disabled="disabled"
                                                                        th:name="|blueprintRestrictionsByObjectType[${mapEntry.key}].${item}|"
                                                                        th:id="|${mapEntry.key}_${item}|"
@@ -183,59 +178,64 @@
                         </ul>
                     </fieldset>
 
-                    <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
+                    <div class="rvt-button-group rvt-p-top-lg">
+                        <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
+                            <span class="rvt-button__content">Update Settings</span>
+                            <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        </button>
                         <button id="associateCoursesButton" class="rvt-button rvt-button--secondary" th:disabled="*{!enableBlueprint}?disabled"
                                 th:aria-disabled="*{!enableBlueprint}?true" data-action="associate" onclick="buttonLoading(this)">
                             <span class="rvt-button__content">Associate Courses</span>
-                            <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
+                            <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
                         </button>
                         <button id="syncButton" type="button" class="rvt-button rvt-button--secondary" th:disabled="${disableSync}" th:aria-disabled="${disableSync}"
-                                data-modal-trigger="modal-sync-options">Sync</button>
-                        <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
-                            <span class="rvt-button__content">Update Settings</span>
-                            <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
-                        </button>
+                                data-rvt-dialog-trigger="dialog-sync-options">Sync</button>
                         <input id="formSubmitAction" type="hidden" name="action" />
                     </div>
 
-                    <div class="rvt-modal"
-                         id="modal-sync-options"
+                    <div class="rvt-dialog"
+                         id="dialog-sync-options"
                          role="dialog"
-                         aria-labelledby="modal-sync-options-title"
-                         aria-hidden="true"
-                         tabindex="-1">
-                        <div class="rvt-modal__inner">
-                            <h1 class="rvt-modal__header rvt-modal__title" id="modal-sync-options-title" th:text="#{modal.title}">Modal title</h1>
-                            <div class="rvt-modal__body">
-                                
-                                <fieldset id="syncOptions">
-                                    <legend class="rvt-ts-18" th:utext="#{modal.instructions}">Sync options</legend>
-                                    <ul class="rvt-plain-list">
-                                        <li class="rvt-checkbox-wrapper">
-                                            <input id="copySettings" type="checkbox" name="copySettings" th:field="*{copySettings}" />
-                                            <label for="copySettings" class="rvt-m-right-sm" th:text="#{modal.option.courseSettings}">Course Settings</label>
-                                        </li>
-                                        <li class="rvt-checkbox-wrapper">
-                                            <input id="sendNotification" type="checkbox" name="sendNotification" th:field="*{sendNotifications}" />
-                                            <label for="sendNotification" class="rvt-m-right-sm" th:text="#{modal.option.sendNotification}">Send Notification!</label>
-                                        </li>
-                                    </ul>
-                                </fieldset>
-                            </div>
-                            <div class="rvt-modal__controls">
-                                <button id="completeSync" class="rvt-button" onclick="buttonLoading(this)" data-action="sync">
-                                    <span class="rvt-button__content" th:text="#{modal.complete}">Complete</span>
-                                    <div class="rvt-loader rvt-loader--xs hide" aria-label="Content loading"></div>
-                                </button>
-                                <button id="cancelSync" type="button" class="rvt-button rvt-button--secondary" th:text="#{modal.cancel}" data-modal-close="modal-sync-options">Cancel</button>
-                            </div>
-                            <button id="closeModal" type="button" class="rvt-button rvt-modal__close" data-modal-close="modal-sync-options">
-                                <span class="rvt-sr-only">Close</span>
-                                <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                                    <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z"/>
-                                </svg>
-                            </button>
+                         tabindex="-1"
+                         aria-labelledby="dialog-sync-options-title"
+                         aria-describedby="dialog-instructions"
+                         data-rvt-dialog="dialog-sync-options"
+                         data-rvt-dialog-modal
+                         data-rvt-dialog-darken-page
+                         data-rvt-dialog-disable-page-interaction
+                         hidden>
+
+                        <header class="rvt-dialog__header">
+                            <h1 class="rvt-dialog__title" id="dialog-sync-options-title" th:text="#{dialog.title}">Dialog title</h1>
+                        </header>
+                        <div class="rvt-dialog__body">
+                            <fieldset id="syncOptions" class="rvt-fieldset">
+                                <legend id="dialog-instructions" class="rvt-ts-18" th:utext="#{dialog.instructions}">Sync options</legend>
+                                <ul class="rvt-list-plain">
+                                    <li class="rvt-checkbox">
+                                        <input id="copySettings" type="checkbox" name="copySettings" th:field="*{copySettings}" />
+                                        <label for="copySettings" class="rvt-m-right-sm" th:text="#{dialog.option.courseSettings}">Course Settings</label>
+                                    </li>
+                                    <li class="rvt-checkbox">
+                                        <input id="sendNotification" type="checkbox" name="sendNotification" th:field="*{sendNotifications}" />
+                                        <label for="sendNotification" class="rvt-m-right-sm" th:text="#{dialog.option.sendNotification}">Send Notification!</label>
+                                    </li>
+                                </ul>
+                            </fieldset>
                         </div>
+                        <div class="rvt-dialog__controls">
+                            <button id="completeSync" class="rvt-button" onclick="buttonLoading(this)" data-action="sync" data-form-id="blueprint-form">
+                                <span class="rvt-button__content" th:text="#{dialog.complete}">Complete</span>
+                                <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Starting course sync"></div>
+                            </button>
+                            <button id="cancelSync" type="button" class="rvt-button rvt-button--secondary" th:text="#{dialog.cancel}" data-rvt-dialog-close="dialog-sync-options">Cancel</button>
+                        </div>
+                        <button id="closeDialog" class="rvt-button rvt-button--plain rvt-dialog__close" data-rvt-dialog-close="dialog-sync-options" role="button">
+                            <span class="rvt-sr-only">Close</span>
+                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+                                <path fill="currentColor" d="M9.41,8l5.29-5.29a1,1,0,0,0-1.41-1.41L8,6.59,2.71,1.29A1,1,0,0,0,1.29,2.71L6.59,8,1.29,13.29a1,1,0,1,0,1.41,1.41L8,9.41l5.29,5.29a1,1,0,0,0,1.41-1.41Z" />
+                            </svg>
+                        </button>
                     </div>
                 </form>
             </div>

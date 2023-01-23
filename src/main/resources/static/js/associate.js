@@ -69,20 +69,8 @@ jQuery(document).ready(function($) {
        $("#term_" + termId + "_visible").val(true);
        selectObj.find(":selected").remove();
        location.href = "#term_" + termId;
+       $("#" + termId + "_termName").focus();
    });
-
-    // this controls the toggle dropdowns
-    $(".toggleGroup").click(function() {
-        var toggleButton = $(this).find('button:first');
-        toggleButton.attr("aria-expanded", toggleButton.attr('aria-expanded')=='true' ? 'false' : 'true');
-        
-        var toggleImg = toggleButton.find('span:first')
-        toggleImg.toggleClass("fa-chevron-right fa-chevron-down");
-
-        var toggleSection = $(this).parent().find('.toggler:first');
-        toggleSection.slideToggle("slow");
-        toggleSection.attr("aria-hidden", toggleSection.attr('aria-hidden')=='true' ? 'false' : 'true');
-    });
 
    checkDirtyForm();
 

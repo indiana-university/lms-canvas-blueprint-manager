@@ -41,10 +41,17 @@ function buttonLoading(button, formSubmit = true) {
         buttonsToDisable[i].disabled = true;
     }
     button.classList.add("rvt-button--loading");
-    button.getElementsByTagName('div')[0].classList.remove("hide");
+    button.getElementsByTagName('div')[0].classList.remove("rvt-display-none");
 
     if (formSubmit) {
         // FF doesn't need this, but Chrome and Edge do
-        button.form.submit();
+        // Also, Rivet 2 moves the dialog out of the form ¯\_(ツ)_/¯ so we have to manually get the form by id
+        if (button.form) {
+            button.form.submit();
+        } else {
+            // the form id will be found in a data attribute
+            const formId = button.dataset.formId;
+            document.getElementById(formId).submit();
+        }
     }
 }

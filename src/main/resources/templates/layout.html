@@ -41,13 +41,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/webjars/font-awesome/css/font-awesome.min.css}" />
-    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-bundle.min.css}" />
+    <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-icons.css}"/>
     <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/css/blueprint.css}"/>
 </head>
 <body>
 
-<div layout:fragment="content" class="rvt-container" role="main">
+<div layout:fragment="content" class="rvt-container-xl" role="main" aria-labelledby="blueprint-title">
     Page content goes here
     <!--
         add something like this to the child page to complete the page layout
@@ -62,12 +62,17 @@
     -->
 </div>
 
-<footer th:unless="${hideFooter}" class="rvt-ts-12 rvt-container rvt-m-top-lg">
+<footer th:unless="${hideFooter}" class="rvt-ts-12 rvt-container-xl rvt-m-top-lg">
     <div id="footer" th:text="${@serverInfo}"></div>
 </footer>
 
-<script type="text/javascript" th:src="@{/app/jsrivet/rivet-bundle.min.js}"></script>
+<script type="text/javascript" th:src="@{/app/jsrivet/rivet.min.js}"></script>
+<script defer th:src="@{/app/jsrivet/rivet-icons.js}"></script>
+<script type="module" th:src="@{/app/jsrivet/rivet-icon-element.js}"></script>
 <script type="text/javascript" th:src="@{/app/webjars/jquery/jquery.min.js}"></script>
+<script>
+  Rivet.init();
+</script>
 <th:block layout:fragment="script">
     <!--
         // load in individual pages javascript
