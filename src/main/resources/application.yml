@@ -60,7 +60,7 @@ spring:
   config.activate.on-profile: redis-session
   session:
     store-type: redis
-    redis.namespace: blueprint-manager-${app.version}:session
+    redis.namespace: blueprint-manager-@app.version@:session
 management.health.redis.enabled: true
 
 ---
