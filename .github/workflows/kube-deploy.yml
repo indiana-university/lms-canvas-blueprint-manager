@@ -50,7 +50,7 @@ env:
 jobs:
   mvn_build:
     name: Maven Build
-    runs-on: [ Linux ]
+    runs-on: ubuntu-latest
 #    container:
 #      image: maven:3.9.4-eclipse-temurin-17
     environment: ${{ github.event.inputs.server_env }}
@@ -93,7 +93,7 @@ jobs:
   deploy:
     name: Deploy to Kubernetes
     needs: [ mvn_build ]
-    runs-on: [ Linux ]
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.server_env }}
     container:
 #      image: registry.docker.iu.edu/library/kube-deployer:3.11.0
