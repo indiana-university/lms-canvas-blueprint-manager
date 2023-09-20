@@ -53,13 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.server_env }}
     steps:
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-          overwrite-settings: false
       - name: Clone GitHub root repository
         uses: actions/checkout@v3
         with:
@@ -72,6 +65,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: tools/${{ env.DEPLOY_DIR }}
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+          overwrite-settings: false
       - name: mvn setup
         run: mkdir /root/.m2
       - name: Create maven settings.xml
