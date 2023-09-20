@@ -51,8 +51,6 @@ jobs:
   mvn_build:
     name: Maven Build
     runs-on: ubuntu-latest
-#    container:
-#      image: maven:3.9.4-eclipse-temurin-17
     environment: ${{ github.event.inputs.server_env }}
     steps:
       - name: Set up JDK
@@ -68,6 +66,7 @@ jobs:
           repository: iu-uits-es/ess-lms-canvas-standalone-apps
           ref: ${{ github.event.inputs.helm_deployer_branch }}
           token: ${{ secrets.LMS_GH_TOKEN }}
+          github-server-url: https://github.iu.edu
 #          path: source
       - name: Clone GitHub tool repository
         uses: actions/checkout@v3
