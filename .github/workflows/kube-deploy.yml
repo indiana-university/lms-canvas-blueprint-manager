@@ -72,8 +72,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
           overwrite-settings: false
-      - name: mvn setup
-        run: mkdir /root/.m2
+#      - name: mvn setup
+#        run: mkdir /root/.m2
       - name: Create maven settings.xml
         run: echo -n '${{ secrets.LMS_MAVEN_SETTINGS }}' | base64 -d > /root/.m2/settings.xml
       - name: Maven Build
