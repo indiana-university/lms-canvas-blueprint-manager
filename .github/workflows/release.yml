@@ -5,8 +5,6 @@
 # Setup
 # -----
 # 1. Create the following secrets inside GitHub:
-#    - LMS_MAVEN_SETTINGS (Base64 encoded settings.xml file)
-#    - LMS_MAVEN_SECURITY (Base64 encoded settings-security.xml file)
 #    - LMS_GIT_CONFIG (Base64 encoded .gitconfig file)
 
 name: Maven Release
@@ -20,10 +18,7 @@ jobs:
     steps:
       - name: Setup git and other necessary files
         run: |
-          mkdir ~/.m2
           echo -n '${{ secrets.LMS_GIT_CONFIG }}' | base64 -d > ~/.gitconfig
-#          echo -n '${{ secrets.LMS_MAVEN_SETTINGS }}' | base64 -d > ~/.m2/settings.xml
-#          echo -n '${{ secrets.LMS_MAVEN_SECURITY }}' | base64 -d > ~/.m2/settings-security.xml
       - uses: actions/checkout@v3
       - name: Set up JDK
         uses: actions/setup-java@v3
