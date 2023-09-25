@@ -64,7 +64,7 @@
         <lms-canvas-rivet.version>5.2.2.0_1</lms-canvas-rivet.version>
         <lms-team-spring-boot-it12>4.7</lms-team-spring-boot-it12>
         <springdoc-openapi-ui.version>1.6.7</springdoc-openapi-ui.version>
-        <spring-cloud-starter-parent.version>2021.0.5</spring-cloud-starter-parent.version>
+        <spring-cloud-starter-parent.version>2022.0.4</spring-cloud-starter-parent.version>
 
         <webjars-locator.version>0.46</webjars-locator.version>
 
