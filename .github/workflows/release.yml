@@ -26,6 +26,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-          overwrite-settings: false
+#          overwrite-settings: false
       - name: Release prepare/perform
         run: mvn clean release:prepare release:perform -B
