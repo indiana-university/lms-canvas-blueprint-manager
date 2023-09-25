@@ -66,7 +66,7 @@
         <springdoc-openapi-ui.version>1.6.7</springdoc-openapi-ui.version>
         <spring-cloud-starter-parent.version>2021.0.5</spring-cloud-starter-parent.version>
 
-        <webjars-locator.version>0.46</webjars-locator.version>
+        <webjars-locator.version>0.47</webjars-locator.version>
 
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>
         <hibernate5-ddl-maven-plugin.version>2.5.0</hibernate5-ddl-maven-plugin.version>
