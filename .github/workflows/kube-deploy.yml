@@ -54,7 +54,7 @@ jobs:
     environment: ${{ github.event.inputs.server_env }}
     steps:
       - name: Clone GitHub root repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: iu-uits-es/ess-lms-canvas-standalone-apps
           ref: ${{ github.event.inputs.helm_deployer_branch }}
@@ -62,7 +62,7 @@ jobs:
           github-server-url: https://github.iu.edu
 #          path: source
       - name: Clone GitHub tool repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: tools/${{ env.DEPLOY_DIR }}
       - name: Set up JDK
@@ -102,7 +102,7 @@ jobs:
         password: ${{ secrets.LMS_REGISTRY_PASSWORD }}
     steps:
       - name: Clone GitHub repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: iu-uits-es/ess-lms-canvas-standalone-apps
           ref: ${{ github.event.inputs.helm_deployer_branch }}
