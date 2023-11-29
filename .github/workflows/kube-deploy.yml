@@ -111,6 +111,7 @@ jobs:
           repository: iu-uits-es/ess-lms-canvas-standalone-apps
           ref: ${{ github.event.inputs.helm_deployer_branch }}
           token: ${{ secrets.LMS_GH_TOKEN }}
+          github-server-url: https://github.iu.edu
       - name: Create KUBECONFIG file for the cluster
         run: |
           echo -n '${{ secrets.LMS_KUBECONFIG_DEPLOYER}}' | base64 -d > /root/.kube/config
