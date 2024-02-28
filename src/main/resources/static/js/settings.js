@@ -38,6 +38,11 @@ jQuery(document).ready(function($) {
 
     $("#enableBlueprint").click(function() {
         $("#blueprintEnabled").slideToggle("slow");
+        if ($(this).prop('checked')) {
+            $("#sr-annc").text("Select your blueprint course options, then submit to save your settings.");
+        } else {
+            $("#sr-annc").text("");
+        }
     });
 
     $('#gloRadio,#lobtRadio').click(function() {
