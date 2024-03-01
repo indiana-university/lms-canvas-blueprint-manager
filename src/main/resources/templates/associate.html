@@ -74,7 +74,10 @@
         <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
 
         <!-- display a message if criteria was not met for normal page usage -->
-        <p class="rvt-ts-18">If you don't see the courses you need to associate, your Blueprint course may be in the wrong node.  For more information see: <a href="https://kb.iu.edu/d/apvn" target="_blank">https://kb.iu.edu/d/apvn</a></p>
+        <p class="rvt-ts-18">If you don't find the courses you need to associate, your Blueprint course may be in the wrong node. For more information, visit:
+            <a href="https://kb.iu.edu/d/apvn" target="_blank" aria-describedby="new-window">About the Canvas Blueprint Manager<rvt-icon name="link-external" class="rvt-m-left-xxs"></rvt-icon></a>.
+        </p>
+        <span hidden id="new-window">Opens in new window</span>
 
         <form id="associateForm" th:object="${blueprintAssociationModel}" th:action="@{|/app/${context}/confirm|}" method="post">
             <div class="rvt-container-xl rvt-border-all rvt-border-radius rvt-p-tb-md">
