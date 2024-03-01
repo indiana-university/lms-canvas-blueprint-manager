@@ -46,11 +46,13 @@ jQuery(document).ready(function($) {
             $("#lobtEnabled").slideUp("slow");
             $("#gloEnabled").find('input[type=checkbox]').prop("disabled", false);
             $("#lobtEnabled").find('input[type=checkbox]').prop("disabled", true);
+            $("#locked-obj-annc").text("Choose your general settings for locked objects.");
         } else if ($('#lobtRadio').is(':checked')) {
             $("#gloEnabled").slideUp("slow");
             $("#lobtEnabled").slideDown("slow");
             $("#gloEnabled").find('input[type=checkbox]').prop("disabled", true);
             $("#lobtEnabled").find('input[type=checkbox]').prop("disabled", false);
+            $("#locked-obj-annc").text("Choose your settings for locked objects by type.");
         }
     });
 
