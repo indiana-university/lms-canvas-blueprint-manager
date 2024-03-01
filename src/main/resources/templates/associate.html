@@ -102,14 +102,14 @@
                                 <button th:id="|${termModel.termId}_termName|" type="button" class="rvt-disclosure__toggle rvt-ts-18"
                                         data-rvt-disclosure-toggle
                                         aria-expanded="true"
-                                        th:attr="aria-controls=|term_${termModel.termId}_section|">
+                                        th:attr="aria-controls=|term_${termModel.termId}_section|, aria-describedby=|term_${termModel.termId}_legend|">
                                         <span th:text="${termModel.termName}">FALL 2017</span>
                                 </button>
 
                                 <div th:id="|term_${termModel.termId}_section|" class="rvt-disclosure__content rvt-p-bottom-sm associate-options"
                                      data-rvt-disclosure-target>
                                     <fieldset th:id="|term_${termModel.termId}_set|" class="rvt-fieldset">
-                                        <legend class="rvt-sr-only" th:text="|${termModel.termName} courses to associate or de-associate|">Checkbox list</legend>
+                                        <legend class="rvt-sr-only" th:id="|term_${termModel.termId}_legend|" th:text="|${termModel.termName} courses to associate or de-associate|">Checkbox list</legend>
                                         <ul class="rvt-list-plain">
                                             <li th:each="courseModel,courseStat : ${termModel.courses}">
                                                 <input type="hidden" th:name="|termModels[__${termStat.index}__].courses[__${courseStat.index}__].courseId|" th:value="${courseModel.courseId}">
