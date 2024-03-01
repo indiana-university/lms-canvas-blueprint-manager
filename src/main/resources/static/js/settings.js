@@ -38,6 +38,11 @@ jQuery(document).ready(function($) {
 
     $("#enableBlueprint").click(function() {
         $("#blueprintEnabled").slideToggle("slow");
+        if ($(this).prop('checked')) {
+            $("#sr-annc").text("Select your blueprint course options, then submit to save your settings.");
+        } else {
+            $("#sr-annc").text("");
+        }
     });
 
     $('#gloRadio,#lobtRadio').click(function() {
@@ -46,13 +51,13 @@ jQuery(document).ready(function($) {
             $("#lobtEnabled").slideUp("slow");
             $("#gloEnabled").find('input[type=checkbox]').prop("disabled", false);
             $("#lobtEnabled").find('input[type=checkbox]').prop("disabled", true);
-            $("#locked-obj-annc").text("Choose your general settings for locked objects.");
+            $("#sr-annc").text("Choose your general settings for locked objects.");
         } else if ($('#lobtRadio').is(':checked')) {
             $("#gloEnabled").slideUp("slow");
             $("#lobtEnabled").slideDown("slow");
             $("#gloEnabled").find('input[type=checkbox]').prop("disabled", true);
             $("#lobtEnabled").find('input[type=checkbox]').prop("disabled", false);
-            $("#locked-obj-annc").text("Choose your settings for locked objects by type.");
+            $("#sr-annc").text("Choose your settings for locked objects by type.");
         }
     });
 
