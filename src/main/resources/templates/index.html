@@ -91,6 +91,10 @@
                         <input type="checkbox" name="enableBlueprint" id="enableBlueprint" th:checked="*{enableBlueprint}?checked" />
                         <label for="enableBlueprint" class="rvt-m-right-sm">Enable course as a Blueprint Course</label>
                     </div>
+
+                    <div aria-live="polite">
+                        <span class="rvt-sr-only" id="sr-annc"></span>
+                    </div>
                     
                     <fieldset id="blueprintEnabled" class="rvt-m-left-lg rvt-fieldset" th:style="*{!enableBlueprint} ? 'display:none'">
                         <legend class="rvt-sr-only">Select how you want to define locked objects in this course</legend>
