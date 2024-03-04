@@ -165,7 +165,10 @@
                                                                        th:name="|blueprintRestrictionsByObjectType[${mapEntry.key}].${item}|"
                                                                        th:id="|${mapEntry.key}_${item}|"
                                                                        th:checked="${blueprintModel.blueprintRestrictionsByObjectType[__${mapEntry.key}__]?.__${item}__}">
-                                                                <label th:for="|${mapEntry.key}_${item}|" class="rvt-m-right-sm" th:text="#{|${item}.title|}">Content</label>
+                                                                <label th:for="|${mapEntry.key}_${item}|" class="rvt-m-right-sm" >
+                                                                    <span th:text="#{|${item}.title|}">Content</span>
+                                                                    <span class="rvt-sr-only" th:text="|for #{|type.${mapEntry.key}.title|}|"></span>
+                                                                </label>
                                                             </li>
                                                         </ul>
                                                     </fieldset>
