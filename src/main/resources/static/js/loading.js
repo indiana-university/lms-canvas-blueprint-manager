@@ -30,6 +30,21 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
+jQuery(document).ready(function($) {
+
+   // some screenreaders are not focusing at the top of the page on load, so we need to manually handle it
+   // if there is an alert message, move focus there. Otherwise, move it to the page title
+    let alertMsg = $(".rvt-alert");
+    if (alertMsg.length > 0) {
+        alertMsg.first().focus();
+    } else {
+        $('#blueprint-title').focus();
+    }
+
+});
+
+
 function buttonLoading(button, formSubmit = true) {
     if (button.dataset.action != null) {
         document.getElementById("formSubmitAction").value = button.dataset.action;
