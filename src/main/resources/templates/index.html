@@ -168,10 +168,11 @@
                                                                 <input type="checkbox" disabled="disabled"
                                                                        th:name="|blueprintRestrictionsByObjectType[${mapEntry.key}].${item}|"
                                                                        th:id="|${mapEntry.key}_${item}|"
-                                                                       th:checked="${blueprintModel.blueprintRestrictionsByObjectType[__${mapEntry.key}__]?.__${item}__}">
+                                                                       th:checked="${blueprintModel.blueprintRestrictionsByObjectType[__${mapEntry.key}__]?.__${item}__}"
+                                                                       th:attr="aria-describedby=|${mapEntry.key}_${item}_info|">
                                                                 <label th:for="|${mapEntry.key}_${item}|" class="rvt-m-right-sm" >
                                                                     <span th:text="#{|${item}.title|}">Content</span>
-                                                                    <span class="rvt-sr-only" th:text="|for #{|type.${mapEntry.key}.title|}|"></span>
+                                                                    <span hidden th:id="|${mapEntry.key}_${item}_info|" th:text="|for #{|type.${mapEntry.key}.title|}|"></span>
                                                                 </label>
                                                             </li>
                                                         </ul>
