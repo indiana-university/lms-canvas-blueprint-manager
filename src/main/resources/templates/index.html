@@ -187,19 +187,11 @@
 
                     <div class="rvt-button-group rvt-p-top-lg">
                         <button id="updateSettingsButton" class="rvt-button" onclick="buttonLoading(this)" data-action="save">
-                            <span class="rvt-button__content">Update Settings</span>
-                            <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                            <span class="loading-text-container" aria-live="polite">
-                                <span class="sr-loader-text rvt-display-none rvt-sr-only">Updating blueprint settings</span>
-                            </span>
+                            <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Update Settings', srText='Updating blueprint settings')"></span>
                         </button>
                         <button id="associateCoursesButton" class="rvt-button rvt-button--secondary" th:disabled="*{!enableBlueprint}?disabled"
                                 th:aria-disabled="*{!enableBlueprint}?true" data-action="associate" onclick="buttonLoading(this)">
-                            <span class="rvt-button__content">Associate Courses</span>
-                            <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                            <span class="loading-text-container" aria-live="polite">
-                                <span class="sr-loader-text rvt-display-none rvt-sr-only">Loading associated course options</span>
-                            </span>
+                            <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Associate Courses', srText='Loading associated course options')"></span>
                         </button>
                         <button id="syncButton" type="button" class="rvt-button rvt-button--secondary" th:disabled="${disableSync}" th:aria-disabled="${disableSync}"
                                 data-rvt-dialog-trigger="dialog-sync-options">Sync</button>
@@ -238,11 +230,7 @@
                         </div>
                         <div class="rvt-dialog__controls">
                             <button id="completeSync" class="rvt-button" onclick="buttonLoading(this)" data-action="sync" data-form-id="blueprint-form">
-                                <span class="rvt-button__content" th:text="#{dialog.complete}">Complete</span>
-                                <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                                <span class="loading-text-container" aria-live="polite">
-                                    <span class="sr-loader-text rvt-display-none rvt-sr-only">Starting course sync</span>
-                                </span>
+                                <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Complete', srText='Starting course sync')"></span>
                             </button>
                             <button id="cancelSync" type="button" class="rvt-button rvt-button--secondary" th:text="#{dialog.cancel}" data-rvt-dialog-close="dialog-sync-options">Cancel</button>
                         </div>

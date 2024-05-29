@@ -94,27 +94,15 @@
                 <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
                     <button id="btnCancel" class="rvt-button rvt-button--secondary"
                             data-action="cancel" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Cancel</span>
-                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                        <span class="loading-text-container" aria-live="polite">
-                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Cancelling changes</span>
-                        </span>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Cancel', srText='Cancelling changes')"></span>
                     </button>
                     <button id="btnEdit" class="rvt-button rvt-button--secondary"
                             data-action="edit" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Edit</span>
-                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                        <span class="loading-text-container" aria-live="polite">
-                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Loading associated course options</span>
-                        </span>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Edit', srText='Loading associated course options')"></span>
                     </button>
                     <button id="btnSubmit" class="rvt-button"
                             data-action="submit" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Submit</span>
-                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
-                        <span class="loading-text-container" aria-live="polite">
-                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Submitting your changes</span>
-                        </span>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Submit', srText='Submitting your changes')"></span>
                     </button>
                     <input id="formSubmitAction" type="hidden" name="action" />
                 </div>

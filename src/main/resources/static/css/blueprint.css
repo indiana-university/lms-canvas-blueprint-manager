@@ -97,8 +97,3 @@
     box-shadow: none;
     margin-top: 0;
 }
-
-/* The SR message in the loading btn takes up space even though it is hidden. This removes that extra space */
-.loading-text-container {
-    margin-right: -0.45em;
-}
