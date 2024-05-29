@@ -95,17 +95,26 @@
                     <button id="btnCancel" class="rvt-button rvt-button--secondary"
                             data-action="cancel" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Cancel</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
+                        <span class="loading-text-container" aria-live="polite">
+                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Cancelling changes</span>
+                        </span>
                     </button>
                     <button id="btnEdit" class="rvt-button rvt-button--secondary"
                             data-action="edit" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Edit</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
+                        <span class="loading-text-container" aria-live="polite">
+                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Loading associated course options</span>
+                        </span>
                     </button>
                     <button id="btnSubmit" class="rvt-button"
                             data-action="submit" onclick="buttonLoading(this)">
                         <span class="rvt-button__content">Submit</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
+                        <span class="loading-text-container" aria-live="polite">
+                            <span class="sr-loader-text rvt-display-none rvt-sr-only">Submitting your changes</span>
+                        </span>
                     </button>
                     <input id="formSubmitAction" type="hidden" name="action" />
                 </div>

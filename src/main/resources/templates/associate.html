@@ -167,12 +167,18 @@
             <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
                 <button class="rvt-button rvt-button--secondary" type="button" th:onclick="|buttonLoading(this,false); location.href='@{/app/__${context}__/index}'|">
                     <span class="rvt-button__content">Settings</span>
-                    <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                    <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
+                    <span class="loading-text-container" aria-live="polite">
+                        <span class="sr-loader-text rvt-display-none rvt-sr-only">Loading blueprint settings</span>
+                    </span>
                 </button>
                 <button id="btnReset" class="rvt-button rvt-button--secondary" type="button">Reset</button>
                 <button id="btnContinue" class="rvt-button" disabled="disabled" aria-disabled="true" onclick="buttonLoading(this)">
                     <span class="rvt-button__content">Continue</span>
-                    <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                    <span class="rvt-loader rvt-loader--xs rvt-display-none"></span>
+                    <span class="loading-text-container" aria-live="polite">
+                        <span class="sr-loader-text rvt-display-none rvt-sr-only">Loading summary</span>
+                    </span>
                 </button>
             </div>
         </form>
