@@ -94,18 +94,15 @@
                 <div class="rvt-button-group rvt-button-group--right rvt-m-top-sm">
                     <button id="btnCancel" class="rvt-button rvt-button--secondary"
                             data-action="cancel" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Cancel</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Cancel', srText='Cancelling changes')"></span>
                     </button>
                     <button id="btnEdit" class="rvt-button rvt-button--secondary"
                             data-action="edit" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Edit</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Edit', srText='Loading associated course options')"></span>
                     </button>
                     <button id="btnSubmit" class="rvt-button"
                             data-action="submit" onclick="buttonLoading(this)">
-                        <span class="rvt-button__content">Submit</span>
-                        <div class="rvt-loader rvt-loader--xs rvt-display-none" aria-label="Content loading"></div>
+                        <span th:replace="fragments/loadingButton.html :: loadingButton(buttonText='Submit', srText='Submitting your changes')"></span>
                     </button>
                     <input id="formSubmitAction" type="hidden" name="action" />
                 </div>

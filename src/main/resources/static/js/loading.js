@@ -41,7 +41,15 @@ function buttonLoading(button, formSubmit = true) {
         buttonsToDisable[i].disabled = true;
     }
     button.classList.add("rvt-button--loading");
-    button.getElementsByTagName('div')[0].classList.remove("rvt-display-none");
+    let spinners = button.getElementsByClassName('rvt-loader');
+    if (spinners && spinners.length > 0) {
+        spinners[0].classList.remove("rvt-display-none");
+    }
+
+    let srText = button.getElementsByClassName('sr-loader-text');
+    if (srText && srText.length > 0) {
+        srText[0].classList.remove("rvt-display-none");
+    }
 
     if (formSubmit) {
         // FF doesn't need this, but Chrome and Edge do
