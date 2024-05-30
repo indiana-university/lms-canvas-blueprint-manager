@@ -97,3 +97,7 @@
     box-shadow: none;
     margin-top: 0;
 }
+
+#blueprint-title:focus, .rvt-alert:focus {
+    outline: none;
+}

@@ -43,7 +43,7 @@
 <body>
 <div layout:fragment="content">
     <div>
-        <div th:if="${associateSuccess}" class="rvt-alert rvt-alert--success [ rvt-m-bottom-md ]" role="alert" aria-labelledby="success-alert-title" data-rvt-alert="success">
+        <div th:if="${associateSuccess}" class="rvt-alert rvt-alert--success [ rvt-m-bottom-md ]" role="alert" tabindex="-1" aria-labelledby="success-alert-title" data-rvt-alert="success">
             <div class="rvt-alert__title" id="success-alert-title">Success</div>
             <p class="rvt-alert__message">Your blueprint course association changes were successful.</p>
             <p th:if="${publishAfterSyncMessage}" class="rvt-alert__message">(<span id="publish-after-sync-message" th:text="#{association.publishAfterSync.label}">Sync text</span>)</p>
@@ -55,12 +55,12 @@
             </button>
         </div>
 
-        <div th:if="${associateFailureMessage}" class="rvt-alert rvt-alert--danger [ rvt-m-bottom-md ]" role="alert" aria-labelledby="error-alert-title" data-rvt-alert="error">
+        <div th:if="${associateFailureMessage}" class="rvt-alert rvt-alert--danger [ rvt-m-bottom-md ]" tabindex="-1" role="alert" aria-labelledby="error-alert-title" data-rvt-alert="error">
             <div class="rvt-alert__title" id="error-alert-title">Error</div>
             <p class="rvt-alert__message" th:utext="#{association.failure(${associateFailureMessage})}">Failure message</p>
         </div>
 
-        <div th:if="${syncWarningMessage}" class="rvt-alert rvt-alert--warning [ rvt-m-bottom-md ]" role="alert" aria-labelledby="warning-alert-title" data-rvt-alert="warning">
+        <div th:if="${syncWarningMessage}" class="rvt-alert rvt-alert--warning [ rvt-m-bottom-md ]" role="alert" tabindex="-1" aria-labelledby="warning-alert-title" data-rvt-alert="warning">
             <div class="rvt-alert__title" id="warning-alert-title">Warning</div>
             <p class="rvt-alert__message"th:utext="#{syncWarningMessage(${syncWarningMessage})}">Sync message</p>
             <button class="rvt-alert__dismiss" data-rvt-alert-close>
@@ -71,7 +71,7 @@
             </button>
         </div>
 
-        <h1 class="rvt-ts-32" id="blueprint-title" th:text="#{blueprint.pageTitle}">Page title</h1>
+        <h1 class="rvt-ts-32" id="blueprint-title" tabindex="-1" th:text="#{blueprint.pageTitle}">Page title</h1>
 
         <!-- display a message if criteria was not met for normal page usage -->
         <p class="rvt-ts-18">If you don't find the courses you need to associate, your Blueprint course may be in the wrong node. For more information, visit:
