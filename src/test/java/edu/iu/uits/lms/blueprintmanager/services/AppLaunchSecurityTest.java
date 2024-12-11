@@ -33,13 +33,20 @@ package edu.iu.uits.lms.blueprintmanager.services;
  * #L%
  */
 
+import edu.iu.uits.lms.blueprintmanager.config.SecurityConfig;
 import edu.iu.uits.lms.blueprintmanager.config.ToolConfig;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintController;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintSettings;
 import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.common.server.ServerInfo;
+import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.LTIConstants;
+import edu.iu.uits.lms.lti.controller.InvalidTokenContextException;
+import edu.iu.uits.lms.lti.service.LmsDefaultGrantedAuthoritiesMapper;
+import jakarta.servlet.ServletException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +56,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
@@ -59,7 +68,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = BlueprintController.class, properties = {"oauth.tokenprovider.url=http://foo"})
-@Import(ToolConfig.class)
+@ContextConfiguration(classes = {BlueprintController.class, SecurityConfig.class})
 @ActiveProfiles("none")
 public class AppLaunchSecurityTest {
 
@@ -68,6 +77,18 @@ public class AppLaunchSecurityTest {
 
    @MockBean
    private BlueprintToolService blueprintToolService;
+
+   @MockBean
+   private CourseSessionService courseSessionService;
+
+   @MockBean
+   private ClientRegistrationRepository clientRegistrationRepository;
+
+   @MockBean
+   private LmsDefaultGrantedAuthoritiesMapper lmsDefaultGrantedAuthoritiesMapper;
+
+   @MockBean(name = ServerInfo.BEAN_NAME)
+   private ServerInfo serverInfo;
 
    @Test
    public void appNoAuthnLaunch() throws Exception {
@@ -85,13 +106,15 @@ public class AppLaunchSecurityTest {
 
       SecurityContextHolder.getContext().setAuthentication(token);
 
-      //This is a secured endpoint and should not not allow access without authn
-      mvc.perform(get("/app/1234/index")
-            .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
-            .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(MockMvcResultMatchers.view().name ("error"))
-            .andExpect(MockMvcResultMatchers.model().attributeExists("error"));
+      // This is a secured endpoint and should not allow access without authn
+      ServletException t = Assertions.assertThrows(ServletException.class, () ->
+              mvc.perform(get("/app/1234/index")
+                      .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
+                      .contentType(MediaType.APPLICATION_JSON))
+      );
+
+      Assertions.assertInstanceOf(InvalidTokenContextException.class, t.getCause());
+      Assertions.assertEquals("Context in authentication token does not match request context", t.getCause().getMessage());
    }
 
    @Test

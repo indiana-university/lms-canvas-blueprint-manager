@@ -33,7 +33,7 @@ package edu.iu.uits.lms.blueprintmanager.services;
  * #L%
  */
 
-import com.nimbusds.jose.shaded.json.JSONObject;
+import edu.iu.uits.lms.blueprintmanager.config.ApplicationConfig;
 import edu.iu.uits.lms.blueprintmanager.config.ToolConfig;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintController;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
@@ -44,8 +44,11 @@ import edu.iu.uits.lms.canvas.model.BlueprintMigrationStatus;
 import edu.iu.uits.lms.canvas.model.BlueprintRestriction;
 import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
 import edu.iu.uits.lms.canvas.model.Course;
+import edu.iu.uits.lms.common.server.ServerInfo;
+import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.LTIConstants;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -53,8 +56,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -69,7 +72,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(controllers = BlueprintController.class, properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
-@Import(ToolConfig.class)
+//@Import(ToolConfig.class)
+@ContextConfiguration(classes = {ApplicationConfig.class, BlueprintController.class})
 public class BlueprintControllerTest {
 
     @MockBean
@@ -77,6 +81,12 @@ public class BlueprintControllerTest {
 
     @MockBean
     private MessageSource messageSource;
+
+    @MockBean
+    private CourseSessionService courseSessionService;
+
+    @MockBean(name = ServerInfo.BEAN_NAME)
+    private ServerInfo serverInfo;
 
     @Autowired
     private MockMvc mockMvc;

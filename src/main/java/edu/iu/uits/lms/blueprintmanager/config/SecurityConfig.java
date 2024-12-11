@@ -4,22 +4,22 @@ package edu.iu.uits.lms.blueprintmanager.config;
  * #%L
  * blueprint-manager
  * %%
- * Copyright (C) 2015 - 2022 Indiana University
+ * Copyright (C) 2015 - 2024 Indiana University
  * %%
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of the Indiana University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software without
  *    specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -36,91 +36,67 @@ package edu.iu.uits.lms.blueprintmanager.config;
 import edu.iu.uits.lms.common.it12logging.LmsFilterSecurityInterceptorObjectPostProcessor;
 import edu.iu.uits.lms.lti.service.LmsDefaultGrantedAuthoritiesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import uk.ac.ox.ctl.lti13.Lti13Configurer;
 
-import static edu.iu.uits.lms.lti.LTIConstants.BASE_USER_ROLE;
+import static edu.iu.uits.lms.lti.LTIConstants.BASE_USER_AUTHORITY;
 import static edu.iu.uits.lms.lti.LTIConstants.WELL_KNOWN_ALL;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private LmsDefaultGrantedAuthoritiesMapper lmsDefaultGrantedAuthoritiesMapper;
 
-    @Configuration
-    @Order(SecurityProperties.BASIC_AUTH_ORDER - 4)
-    public static class AppWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
-
-        @Autowired
-        private LmsDefaultGrantedAuthoritiesMapper lmsDefaultGrantedAuthoritiesMapper;
-
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                  .requestMatchers()
-                  .antMatchers(WELL_KNOWN_ALL, "/error", "/app/**")
-                  .and()
-                  .authorizeRequests()
-                  .antMatchers(WELL_KNOWN_ALL, "/error").permitAll()
-                  .antMatchers("/**").hasRole(BASE_USER_ROLE)
-                  .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
-                  .and()
-                  .headers()
-                  .contentSecurityPolicy("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com")
-                  .and()
-                  .referrerPolicy(referrer -> referrer
-                          .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN));
-
-
-            //Setup the LTI handshake
-            Lti13Configurer lti13Configurer = new Lti13Configurer()
-                  .grantedAuthoritiesMapper(lmsDefaultGrantedAuthoritiesMapper);
-
-            http.apply(lti13Configurer);
-
-            //Fallback for everything else
-            http.requestMatchers().antMatchers("/**")
-                  .and()
-                  .authorizeRequests()
-                  .anyRequest().authenticated()
-                  .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
-                  .and()
-                  .headers()
-                  .contentSecurityPolicy("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com")
-                  .and()
-                  .referrerPolicy(referrer -> referrer
-                          .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN));
-        }
-
-        @Override
-        public void configure(WebSecurity web) throws Exception {
-            // ignore everything except paths specified
-            web.ignoring().antMatchers("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico");
-        }
-
+    @Bean
+    @Order(6)
+    public SecurityFilterChain appFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(WELL_KNOWN_ALL, "/error", "/app/**")
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(WELL_KNOWN_ALL, "/error").permitAll()
+                        .requestMatchers("/**").hasAuthority(BASE_USER_AUTHORITY)
+                        .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
+                )
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com"))
+                        .referrerPolicy(referrer -> referrer
+                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
+                );
+        return http.build();
     }
 
-    @Configuration
-    @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
-    public static class CatchAllSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // ignore everything except paths specified
+        return web -> web.ignoring().requestMatchers("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico");
+    }
 
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http.requestMatchers().antMatchers("/**")
-                  .and()
-                  .authorizeRequests()
-                  .anyRequest().authenticated()
-                  .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
-                  .and()
-                  .headers()
-                  .contentSecurityPolicy("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com")
-                  .and()
-                  .referrerPolicy(referrer -> referrer
-                          .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN));
-        }
+    @Bean
+    @Order(7)
+    public SecurityFilterChain catchallFilterChain(HttpSecurity http) throws Exception {
+        //Setup the LTI handshake
+        http.with(new Lti13Configurer(), lti ->
+                lti.setSecurityContextRepository(new HttpSessionSecurityContextRepository())
+                        .grantedAuthoritiesMapper(lmsDefaultGrantedAuthoritiesMapper));
+
+        http.securityMatcher("/**")
+                .authorizeHttpRequests((authz) -> authz.anyRequest().authenticated()
+                        .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor()))
+                .headers(headers -> headers
+                        .contentSecurityPolicy(csp ->
+                                csp.policyDirectives("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com"))
+                        .referrerPolicy(referrer -> referrer
+                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
+                );
+
+        return http.build();
     }
 }
