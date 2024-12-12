@@ -34,7 +34,6 @@ package edu.iu.uits.lms.blueprintmanager.services;
  */
 
 import edu.iu.uits.lms.blueprintmanager.config.ApplicationConfig;
-import edu.iu.uits.lms.blueprintmanager.config.ToolConfig;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintController;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintModel;
 import edu.iu.uits.lms.blueprintmanager.controller.BlueprintSettings;
@@ -72,7 +71,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(controllers = BlueprintController.class, properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
-//@Import(ToolConfig.class)
 @ContextConfiguration(classes = {ApplicationConfig.class, BlueprintController.class})
 public class BlueprintControllerTest {
 
