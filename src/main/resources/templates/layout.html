@@ -44,6 +44,8 @@
     <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-core/rivet.min.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/app/jsrivet/rivet-icons/rivet-icon-element.css}"/>
     <link media="all" rel="stylesheet" type="text/css" th:href="@{/app/css/blueprint.css}"/>
+    <!-- The below link references commonFragments which lives in common-configuration and comes along on the classpath  -->
+    <link th:replace="~{commonFragments/favicon :: favicon}" />
 </head>
 <body>
 
@@ -52,19 +54,19 @@
     <!--
         add something like this to the child page to complete the page layout
 
-        <div class="rvt-grid">
-            <div class="rvt-grid__item">
+        <div class="rvt-row">
+            <div class="rvt-cols">
                 <span>Grid item</span>
             </div>
         </div>
 
-        See https://rivet.uits.iu.edu/components/layout/grid/ for options, depending on what's needed.
+        See https://rivet.iu.edu/components/grid/ for options, depending on what's needed.
     -->
 </div>
 
-<footer th:unless="${hideFooter}" class="rvt-ts-12 rvt-container-xl rvt-m-top-lg">
-    <div id="footer" th:text="${@serverInfo}"></div>
-</footer>
+<th:block th:with="siElements=${@serverInfo.elements}">
+    <div th:replace="~{commonFragments/layouts :: footer(${hideFooter}, ${siElements})}"></div>
+</th:block>
 
 <script type="text/javascript" th:src="@{/app/jsrivet/rivet-core/rivet.min.js}"></script>
 <script type="module" th:src="@{/app/jsrivet/rivet-icons/rivet-icons.js}"></script>
