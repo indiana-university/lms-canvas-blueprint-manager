@@ -49,13 +49,14 @@ import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.LTIConstants;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.MessageSource;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -70,20 +71,22 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@WebMvcTest(controllers = BlueprintController.class, properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
+@WebMvcTest(controllers = BlueprintController.class,
+        excludeAutoConfiguration = {OAuth2ResourceServerAutoConfiguration.class},
+        properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
 @ContextConfiguration(classes = {ApplicationConfig.class, BlueprintController.class})
 public class BlueprintControllerTest {
 
-    @MockBean
+    @MockitoBean
     private BlueprintToolService blueprintToolService;
 
-    @MockBean
+    @MockitoBean
     private MessageSource messageSource;
 
-    @MockBean
+    @MockitoBean
     private CourseSessionService courseSessionService;
 
-    @MockBean(name = ServerInfo.BEAN_NAME)
+    @MockitoBean(name = ServerInfo.BEAN_NAME)
     private ServerInfo serverInfo;
 
     @Autowired

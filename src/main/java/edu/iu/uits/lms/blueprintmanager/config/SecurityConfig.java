@@ -33,7 +33,6 @@ package edu.iu.uits.lms.blueprintmanager.config;
  * #L%
  */
 
-import edu.iu.uits.lms.common.it12logging.LmsFilterSecurityInterceptorObjectPostProcessor;
 import edu.iu.uits.lms.lti.service.LmsDefaultGrantedAuthoritiesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +40,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
@@ -63,7 +61,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(WELL_KNOWN_ALL, "/error").permitAll()
                         .requestMatchers("/**").hasAuthority(BASE_USER_AUTHORITY)
-                        .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor())
                 )
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp -> csp.policyDirectives("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com"))
@@ -74,9 +71,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        // ignore everything except paths specified
-        return web -> web.ignoring().requestMatchers("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico");
+    @Order(5)
+    public SecurityFilterChain staticResourcesFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/app/jsrivet/**", "/app/webjars/**", "/app/css/**", "/app/js/**", "/favicon.ico")
+                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        return http.build();
     }
 
     @Bean
@@ -88,8 +87,7 @@ public class SecurityConfig {
                         .grantedAuthoritiesMapper(lmsDefaultGrantedAuthoritiesMapper));
 
         http.securityMatcher("/**")
-                .authorizeHttpRequests((authz) -> authz.anyRequest().authenticated()
-                        .withObjectPostProcessor(new LmsFilterSecurityInterceptorObjectPostProcessor()))
+                .authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
                 .headers(headers -> headers
                         .contentSecurityPolicy(csp ->
                                 csp.policyDirectives("style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self' https://*.instructure.com"))
