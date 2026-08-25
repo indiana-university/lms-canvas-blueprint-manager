@@ -50,8 +50,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -64,6 +64,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import uk.ac.ox.ctl.lti13.security.oauth2.client.lti.authentication.OidcAuthenticationToken;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,19 +76,19 @@ public class AppLaunchSecurityTest {
    @Autowired
    private MockMvc mvc;
 
-   @MockBean
+   @MockitoBean
    private BlueprintToolService blueprintToolService;
 
-   @MockBean
+   @MockitoBean
    private CourseSessionService courseSessionService;
 
-   @MockBean
+   @MockitoBean
    private ClientRegistrationRepository clientRegistrationRepository;
 
-   @MockBean
+   @MockitoBean
    private LmsDefaultGrantedAuthoritiesMapper lmsDefaultGrantedAuthoritiesMapper;
 
-   @MockBean(name = ServerInfo.BEAN_NAME)
+   @MockitoBean(name = ServerInfo.BEAN_NAME)
    private ServerInfo serverInfo;
 
    @Test
@@ -104,11 +105,10 @@ public class AppLaunchSecurityTest {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "asdf", LTIConstants.INSTRUCTOR_AUTHORITY);
 
-      SecurityContextHolder.getContext().setAuthentication(token);
-
       // This is a secured endpoint and should not allow access without authn
       ServletException t = Assertions.assertThrows(ServletException.class, () ->
               mvc.perform(get("/app/1234/index")
+                      .with(authentication(token))
                       .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
                       .contentType(MediaType.APPLICATION_JSON))
       );
@@ -121,8 +121,6 @@ public class AppLaunchSecurityTest {
    public void appAuthnLaunch() throws Exception {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "1234", LTIConstants.INSTRUCTOR_AUTHORITY);
-
-      SecurityContextHolder.getContext().setAuthentication(token);
 
       Course course = new Course();
       course.setId("1234");
@@ -141,6 +139,7 @@ public class AppLaunchSecurityTest {
 
       //This is a secured endpoint and should not not allow access without authn
       mvc.perform(get("/app/1234/index")
+            .with(authentication(token))
             .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
@@ -160,10 +159,10 @@ public class AppLaunchSecurityTest {
    public void randomUrlWithAuth() throws Exception {
       OidcAuthenticationToken token = TestUtils.buildToken("userId",
             "1234", LTIConstants.INSTRUCTOR_AUTHORITY);
-      SecurityContextHolder.getContext().setAuthentication(token);
 
       //This is a secured endpoint and should not not allow access without authn
       mvc.perform(get("/asdf/foobar")
+            .with(authentication(token))
             .header(HttpHeaders.USER_AGENT, TestUtils.defaultUseragent())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
