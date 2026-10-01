@@ -35,6 +35,7 @@ package edu.iu.uits.lms.blueprintmanager;
 
 import edu.iu.uits.lms.blueprintmanager.config.ToolConfig;
 import edu.iu.uits.lms.canvas.config.EnableCanvasClient;
+import edu.iu.uits.lms.canvasoauth2.config.EnableCanvasOAuth2Client;
 import edu.iu.uits.lms.common.samesite.EnableCookieFilter;
 import edu.iu.uits.lms.common.server.GitRepositoryState;
 import edu.iu.uits.lms.common.server.ServerInfo;
@@ -57,6 +58,7 @@ import java.util.Date;
 @EnableCookieFilter(ignoredRequestPatterns = {"/rest/**"})
 @EnableLtiClient(toolKeys = "lms_lti_blueprint")
 @EnableCanvasClient
+@EnableCanvasOAuth2Client(registrationIdSuffix = "blueprintmanager", rivetCssPathPrefix = "/app/jsrivet")
 @EnableConfigurationProperties(GitRepositoryState.class)
 @EnableCourseSessionService(sessionKey = "blueprint_course_session")
 @EnableGlobalErrorHandler
