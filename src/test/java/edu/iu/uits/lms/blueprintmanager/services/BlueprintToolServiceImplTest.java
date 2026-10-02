@@ -60,6 +60,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -72,6 +73,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 @Slf4j
 public class BlueprintToolServiceImplTest {
@@ -96,6 +98,10 @@ public class BlueprintToolServiceImplTest {
     @Mock
     private BlueprintService blueprintApi;
 
+    @Autowired
+    @Mock
+    private RestTemplate canvasRestTemplateAsUser;
+
     private static final String ID = "asdf";
 
     @BeforeEach
@@ -116,8 +122,8 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithNoEnrollments() {
         Course course = baseCourse(null);
 
-        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
-        Mockito.when(coursesApi.getUsersForCourseByType(anyString(), anyList(), anyList()))
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
+        Mockito.when(coursesApi.getUsersForCourseByType(anyString(), anyList(), anyList(), eq(canvasRestTemplateAsUser)))
                 .thenReturn(null);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
@@ -128,14 +134,14 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithStudents() {
         Course course = baseCourse(EnrollmentHelper.TYPE.student);
 
-        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
 
         List<User> users = new ArrayList<>();
         User user = new User();
         user.setId("1");
         users.add(user);
 
-        Mockito.when(coursesApi.getUsersForCourseByType(anyString(), anyList(), anyList()))
+        Mockito.when(coursesApi.getUsersForCourseByType(anyString(), anyList(), anyList(), eq(canvasRestTemplateAsUser)))
                 .thenReturn(users);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
@@ -146,7 +152,7 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithInstructors() {
         Course course = baseCourse(EnrollmentHelper.TYPE.teacher);
 
-        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
         Assertions.assertFalse(courseSettings.hasEnrollments());
@@ -154,7 +160,7 @@ public class BlueprintToolServiceImplTest {
 
     @Test
     public void testGoodUpdate() {
-        Mockito.when(coursesApi.getCourse(ID)).thenReturn(baseCourse(null));
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(baseCourse(null));
 
         Course course = baseCourse(EnrollmentHelper.TYPE.student);
         BlueprintCourseUpdateStatus blueprintCourseUpdateStatus = new BlueprintCourseUpdateStatus();
@@ -176,7 +182,7 @@ public class BlueprintToolServiceImplTest {
 
     @Test
     public void testBadUpdate() {
-        Mockito.when(coursesApi.getCourse(ID)).thenReturn(baseCourse(null));
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(baseCourse(null));
         Mockito.doThrow(BlueprintConfigurationUpdateException.class)
                 .when(blueprintApi).saveBlueprintConfiguration(anyString(), any());
 
@@ -239,7 +245,7 @@ public class BlueprintToolServiceImplTest {
         ct4.setStartAt("2015-01-01T05:00:00Z");
         terms.add(ct4);
 
-        Mockito.when(termsApi.getEnrollmentTerms()).thenReturn(terms);
+        Mockito.when(termsApi.getEnrollmentTerms(canvasRestTemplateAsUser)).thenReturn(terms);
 
         List<Course> courses = new ArrayList<>();
         Course c1 = new Course();
@@ -348,7 +354,7 @@ public class BlueprintToolServiceImplTest {
         List<Account> accountList3 = Arrays.asList(a1, a2);
         List<Account> accountList4 = Arrays.asList(a1, a5);
 
-        Mockito.when(coursesApi.getCoursesTaughtBy(userId, false, false, false)).thenReturn(courses);
+        Mockito.when(coursesApi.getCoursesTaughtBy(userId, false, false, false, canvasRestTemplateAsUser)).thenReturn(courses);
         Mockito.when(accountsApi.getParentAccounts("789")).thenReturn(accountList1);
         Mockito.when(accountsApi.getParentAccounts("456")).thenReturn(accountList2);
         Mockito.when(accountsApi.getParentAccounts("123")).thenReturn(accountList3);

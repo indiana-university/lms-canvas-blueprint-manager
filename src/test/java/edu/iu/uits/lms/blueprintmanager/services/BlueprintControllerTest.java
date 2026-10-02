@@ -44,6 +44,8 @@ import edu.iu.uits.lms.canvas.model.BlueprintRestriction;
 import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
 import edu.iu.uits.lms.canvas.model.Course;
 import edu.iu.uits.lms.common.server.ServerInfo;
+import edu.iu.uits.lms.canvasoauth2.CanvasOAuth2Registration;
+import edu.iu.uits.lms.canvasoauth2.security.CanvasOAuth2AuthorizedClientRepository;
 import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.LTIConstants;
@@ -53,10 +55,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.servlet.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -72,10 +77,37 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(controllers = BlueprintController.class,
-        excludeAutoConfiguration = {OAuth2ResourceServerAutoConfiguration.class},
+        // This slice deliberately omits SecurityConfig (see AppLaunchSecurityTest for the
+        // security-focused variant that includes it), so OAuth2ClientWebSecurityAutoConfiguration's
+        // own default oauth2SecurityFilterChain bean - which needs an HttpSecurity bean that only
+        // @EnableWebSecurity (on SecurityConfig) would provide - must be excluded too.
+        excludeAutoConfiguration = {OAuth2ResourceServerAutoConfiguration.class, OAuth2ClientWebSecurityAutoConfiguration.class},
         properties = {"oauth.tokenprovider.url=http://foo", "logging.level.org.springframework.security=DEBUG"})
-@ContextConfiguration(classes = {ApplicationConfig.class, BlueprintController.class})
+@ContextConfiguration(classes = {ApplicationConfig.class, BlueprintController.class, BlueprintControllerTest.TestConfig.class})
 public class BlueprintControllerTest {
+
+    private static final String REGISTRATION_ID = "lms_canvas_oauth2_blueprintmanager";
+
+    /**
+     * Plain {@code @Bean}s rather than {@code @MockitoBean} - see the javadoc on the identical
+     * TestConfig in CourselistControllerConsentTest for why: OAuth2ClientWebSecurityAutoConfiguration's
+     * {@code @ConditionalOnMissingBean(OAuth2AuthorizedClientRepository.class)} doesn't recognize a
+     * same-named {@code @MockitoBean} of the narrower concrete type as already satisfying it, so both
+     * beans get created and autowiring the interface type elsewhere becomes ambiguous. A regular
+     * {@code @Bean} factory method participates in that condition check correctly.
+     */
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public CanvasOAuth2Registration canvasOAuth2Registration() {
+            return new CanvasOAuth2Registration("blueprintmanager", "/app/jsrivet");
+        }
+
+        @Bean
+        public CanvasOAuth2AuthorizedClientRepository canvasOAuth2AuthorizedClientRepository() {
+            return Mockito.mock(CanvasOAuth2AuthorizedClientRepository.class);
+        }
+    }
 
     @MockitoBean
     private BlueprintToolService blueprintToolService;
