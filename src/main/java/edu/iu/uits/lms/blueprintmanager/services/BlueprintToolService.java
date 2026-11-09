@@ -60,7 +60,9 @@ import edu.iu.uits.lms.canvas.services.CourseService;
 import edu.iu.uits.lms.canvas.services.TermService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -93,9 +95,17 @@ public class BlueprintToolService {
     @Autowired
     private AccountService accountService = null;
 
+    // Per-user Canvas OAuth2 token, for calls that should run as the launching instructor rather
+    // than the shared admin token (see docs/oauth/BLUEPRINT_MANAGER_CANVAS_OAUTH2_EVALUATION.md).
+    // Its interceptor resolves the current request's SecurityContext at call time, so it is safe
+    // to hold as a singleton-scoped field and reuse across requests (see CanvasOAuth2TokenInterceptor).
+    @Autowired
+    @Qualifier("CanvasRestTemplateAsUser")
+    private RestTemplate canvasRestTemplateAsUser;
+
 
     public BlueprintSettings getCourseSettings(String courseId) {
-        Course course = courseService.getCourse(courseId);
+        Course course = courseService.getCourse(courseId, canvasRestTemplateAsUser);
         return getCourseSettings(course);
     }
 
@@ -122,23 +132,30 @@ public class BlueprintToolService {
 
         List<String> states = Arrays.asList(EnrollmentHelper.STATE.active.name(), EnrollmentHelper.STATE.invited.name());
         List<String> types = Arrays.asList(EnrollmentHelper.TYPE.student.name(), EnrollmentHelper.TYPE.observer.name());
-        List<User> users = courseService.getUsersForCourseByType(course.getId(), types, states);
+        List<User> users = courseService.getUsersForCourseByType(course.getId(), types, states, canvasRestTemplateAsUser);
 
         if (users != null && !users.isEmpty()) {
             settings.hasEnrollments(true);
         }
 
-        List<BlueprintMigration> subscriptions = blueprintService.getSubscriptions(course.getId(), TEMPLATE_ID);
+        List<BlueprintMigration> subscriptions = blueprintService.getSubscriptions(course.getId(), TEMPLATE_ID, canvasRestTemplateAsUser);
         settings.setAlreadyAssociated(!subscriptions.isEmpty());
 
-        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(course.getId(), TEMPLATE_ID);
+        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(course.getId(), TEMPLATE_ID, canvasRestTemplateAsUser);
         settings.setHasAssociations(!bpCourses.isEmpty());
 
         return settings;
     }
 
     public BlueprintSettings updateCourseSettings(BlueprintModel blueprintModel) throws BlueprintConfigurationUpdateException {
-        boolean originalBlueprintSetting = courseService.getCourse(blueprintModel.getCourseId()).isBlueprint();
+        boolean originalBlueprintSetting = courseService.getCourse(blueprintModel.getCourseId(), canvasRestTemplateAsUser).isBlueprint();
+
+        // saveBlueprintConfiguration (enabling/disabling Blueprint status) stays on the shared admin
+        // token permanently: confirmed 2026-09-29 by direct read of canvas-lms's courses_controller.rb
+        // (update action) that this flag-flip is gated by the account-level manage_master_courses
+        // permission - architecturally identical to update_associations, not a separate or looser
+        // check. See docs/oauth/BLUEPRINT_MANAGER_CANVAS_OAUTH2_EVALUATION.md, "Must remain on the
+        // shared admin token".
 
         BlueprintService.BlueprintConfiguration bc = new BlueprintService.BlueprintConfiguration();
         bc.setEnabled(blueprintModel.isEnableBlueprint());
@@ -197,7 +214,7 @@ public class BlueprintToolService {
      * @return List of courses
      */
     private List<BlueprintAssociatedCourse> getAssociatedCourses(String courseId, List<Course> availableCourses) {
-        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(courseId, TEMPLATE_ID);
+        List<BlueprintAssociatedCourse> bpCourses = blueprintService.getAssociatedCourses(courseId, TEMPLATE_ID, canvasRestTemplateAsUser);
 
         Set<String> availableCourseIds = availableCourses.stream().map(Course::getId).collect(Collectors.toSet());
 
@@ -213,7 +230,7 @@ public class BlueprintToolService {
      * @return List of courses
      */
     protected List<Course> getAvailableCourses(String userId, String accountId) {
-        List<Course> courses = courseService.getCoursesTaughtBy(userId, false, false, false);
+        List<Course> courses = courseService.getCoursesTaughtBy(userId, false, false, false, canvasRestTemplateAsUser);
         Map<String, Set<String>> accountIdCache = new HashMap<>();
         List<Course> filteredCourses = new ArrayList<>();
         courses.forEach(c -> {
@@ -236,7 +253,7 @@ public class BlueprintToolService {
      * @return List of CanvasTerm objects, sorted by start date
      */
     protected List<CanvasTerm> getPossibleTerms(List<Course> courses) {
-        List<CanvasTerm> allTerms = termService.getEnrollmentTerms();
+        List<CanvasTerm> allTerms = termService.getEnrollmentTerms(canvasRestTemplateAsUser);
         Map<String, CanvasTerm> allTermMap = allTerms.stream().collect(Collectors.toMap(CanvasTerm::getId, term -> term, (a, b) -> b));
 
         List<String> availableTermsIds = courses.stream().map(Course::getEnrollmentTermId)
@@ -254,7 +271,7 @@ public class BlueprintToolService {
         BlueprintAssociationModel blueprintAssociationModel = new BlueprintAssociationModel();
         blueprintAssociationModel.setInitialized(true);
 
-        Course blueprintCourse = courseService.getCourse(courseId);
+        Course blueprintCourse = courseService.getCourse(courseId, canvasRestTemplateAsUser);
 
         List<Course> availableCourses = getAvailableCourses(username, blueprintCourse.getAccountId());
 
@@ -339,8 +356,13 @@ public class BlueprintToolService {
         List<BlueprintMigration> filteredMigrations = getActiveMigrationStatuses(courseId);
 
         if (filteredMigrations.isEmpty()) {
-            String asUser = username != null ? CanvasConstants.API_FIELD_SIS_LOGIN_ID + ":" + username : null;
-            return blueprintService.performMigration(courseId, TEMPLATE_ID, copySettings, sendNotifications, asUser, publishAfterSync);
+            // This call now runs as the launching instructor's own Canvas OAuth2 token, so no
+            // as_user_id masquerade is needed (or accepted) any more - the "as_user_id" query param
+            // this used to construct manually was only ever standing in for the caller's own
+            // identity, which the per-user token now supplies natively. See
+            // docs/oauth/BLUEPRINT_MANAGER_CANVAS_OAUTH2_EVALUATION.md.
+            return blueprintService.performMigration(courseId, TEMPLATE_ID, copySettings, sendNotifications, null, publishAfterSync,
+                    canvasRestTemplateAsUser);
         } else {
             BlueprintMigrationStatus status = new BlueprintMigrationStatus();
             status.setMessage("A sync is currently in progress.  Please wait a few minutes and try to associate these courses again.");
@@ -350,7 +372,7 @@ public class BlueprintToolService {
 
     public List<BlueprintMigration> getActiveMigrationStatuses(String courseId) {
         //Check for currently running migrations
-        List<BlueprintMigration> blueprintMigrations = blueprintService.getMigrations(courseId, TEMPLATE_ID);
+        List<BlueprintMigration> blueprintMigrations = blueprintService.getMigrations(courseId, TEMPLATE_ID, canvasRestTemplateAsUser);
 
         List<String> activeStates = Arrays.asList(BlueprintHelper.WORKFLOW_STATE.EXPORTING.getValue(),
               BlueprintHelper.WORKFLOW_STATE.IMPORTS_QUEUED.getValue(), BlueprintHelper.WORKFLOW_STATE.QUEUED.getValue());

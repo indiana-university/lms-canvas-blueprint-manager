@@ -39,15 +39,19 @@ import edu.iu.uits.lms.blueprintmanager.services.BlueprintConfigurationUpdateExc
 import edu.iu.uits.lms.blueprintmanager.services.BlueprintToolService;
 import edu.iu.uits.lms.canvas.model.BlueprintMigrationStatus;
 import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
+import edu.iu.uits.lms.canvasoauth2.CanvasOAuth2Registration;
+import edu.iu.uits.lms.canvasoauth2.security.CanvasOAuth2AuthorizedClientRepository;
 import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.LTIConstants;
 import edu.iu.uits.lms.lti.controller.OidcTokenAwareController;
 import edu.iu.uits.lms.lti.service.OidcTokenUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -74,6 +78,28 @@ public class BlueprintController extends OidcTokenAwareController {
 
     @Autowired
     private CourseSessionService courseSessionService;
+
+    @Autowired
+    private CanvasOAuth2AuthorizedClientRepository canvasOAuth2AuthorizedClientRepository;
+
+    @Autowired
+    private CanvasOAuth2Registration canvasOAuth2Registration;
+
+    /**
+     * Guards every action in this controller with the per-user Canvas OAuth2 consent flow before
+     * the handler method runs. Nearly every Blueprint action now makes at least one Canvas call as
+     * the launching instructor's own OAuth2 token (see
+     * docs/oauth/BLUEPRINT_MANAGER_CANVAS_OAUTH2_EVALUATION.md), so this is checked once, centrally,
+     * rather than duplicated in each of launch/index/submit/associate/sync/confirm. When
+     * canvas.oauth2.enabled is off, this is a dark-launch no-op (see
+     * CanvasOAuth2AuthorizedClientRepository#ensureAuthorized).
+     * @param request current request, used to build the "return here after consent" redirect
+     */
+    @ModelAttribute
+    public void ensureCanvasOAuth2Consent(HttpServletRequest request) {
+        canvasOAuth2AuthorizedClientRepository.ensureAuthorized(
+                canvasOAuth2Registration.getRegistrationId(), SecurityContextHolder.getContext().getAuthentication(), request);
+    }
 
     @RequestMapping("/launch")
     @Secured(LTIConstants.INSTRUCTOR_AUTHORITY)
