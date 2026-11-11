@@ -43,6 +43,7 @@ import edu.iu.uits.lms.canvasoauth2.CanvasOAuth2Registration;
 import edu.iu.uits.lms.canvasoauth2.security.CanvasOAuth2AuthorizedClientRepository;
 import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.LTIConstants;
+import edu.iu.uits.lms.lti.controller.InvalidTokenContextException;
 import edu.iu.uits.lms.lti.controller.OidcTokenAwareController;
 import edu.iu.uits.lms.lti.service.OidcTokenUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -159,6 +160,11 @@ public class BlueprintController extends OidcTokenAwareController {
                          @ModelAttribute BlueprintModel blueprintModel,
                          BindingResult bindingResult,
                          Model model) {
+        // The update runs on the admin token, so it must only ever apply to the course this launch is for.
+        // The form always posts the same course id as the launch context, so any mismatch is rejected outright.
+        OidcAuthenticationToken token = getValidatedToken(context);
+        verifyPostedCourseMatchesContext(token, context, blueprintModel.getCourseId(), "courseId");
+
         BlueprintSettings courseSettings = null;
         try {
             courseSettings = blueprintToolService.updateCourseSettings(blueprintModel);
@@ -251,11 +257,13 @@ public class BlueprintController extends OidcTokenAwareController {
                           Model model, HttpSession session) {
 
         OidcAuthenticationToken token = getValidatedToken(context);
+        // The association update runs on the admin token, so it must only ever apply to this launch's blueprint course.
+        verifyPostedCourseMatchesContext(token, context, blueprintModel.getBlueprintCourseId(), "blueprintCourseId");
         OidcTokenUtils oidcTokenUtils = new OidcTokenUtils(token);
         String username = oidcTokenUtils.getUserLoginId();
 
         BlueprintAssociationModel bam = null;
-        BlueprintUpdateStatus updateStatus = blueprintToolService.updateAssociations(blueprintModel);
+        BlueprintUpdateStatus updateStatus = blueprintToolService.updateAssociations(context, username, blueprintModel);
 
         if (updateStatus.isSuccess()) {
             BlueprintMigrationStatus migrationStatus = blueprintToolService.performMigration(context, true, false, username, blueprintModel.isPublishAfterSync());
@@ -303,5 +311,23 @@ public class BlueprintController extends OidcTokenAwareController {
 
         courseSessionService.removeAttributeFromSession(session, context, FORM_SESSION_KEY);
         return associate(context, null, model, session);
+    }
+
+    /**
+     * The forms in this tool always post the same course id as the launch context in the URL, so a posted course id
+     * that is missing or different means the request was tampered with (or there is a bug). Reject it instead of
+     * quietly substituting the context, so it never goes unnoticed.
+     * @param token validated token for this launch
+     * @param context course id from the URL, already validated against the token
+     * @param postedCourseId course id that came in with the form
+     * @param fieldName name of the posted field, for the log/exception message
+     * @throws InvalidTokenContextException if the posted course id does not match the context
+     */
+    private void verifyPostedCourseMatchesContext(OidcAuthenticationToken token, String context, String postedCourseId, String fieldName) {
+        if (!context.equals(postedCourseId)) {
+            log.warn("Rejecting request by {}: posted {} [{}] does not match launch context [{}]",
+                    new OidcTokenUtils(token).getUserLoginId(), fieldName, postedCourseId, context);
+            throw new InvalidTokenContextException("Posted " + fieldName + " does not match request context");
+        }
     }
 }

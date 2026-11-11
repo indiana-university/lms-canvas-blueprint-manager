@@ -50,6 +50,7 @@ import edu.iu.uits.lms.common.session.CourseSessionService;
 import edu.iu.uits.lms.lti.config.TestUtils;
 import edu.iu.uits.lms.lti.LTIConstants;
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.junit.jupiter.api.Test;
@@ -253,7 +254,7 @@ public class BlueprintControllerTest {
         Mockito.when(blueprintToolService.getCourseSettings(ID)).thenReturn(settings);
         Mockito.when(blueprintToolService.updateCourseSettings(any())).thenReturn(settings);
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).with(csrf()));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).param("courseId", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("index"));
@@ -272,7 +273,7 @@ public class BlueprintControllerTest {
         Mockito.when(messageSource.getMessage("settings.failure", null, Locale.getDefault())).thenReturn("Foobar");
 
         Mockito.doThrow(BlueprintConfigurationUpdateException.class).when(blueprintToolService).updateCourseSettings(any());
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).with(csrf()));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).param("courseId", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("index"));
@@ -282,15 +283,57 @@ public class BlueprintControllerTest {
     }
 
     @Test
+    public void testSettingsSubmitRejectsPostedCourseIdThatDoesNotMatchContext() throws Exception {
+        Assertions.assertThrows(Exception.class, () ->
+                mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID)
+                        .param("courseId", "someOtherCourse").with(csrf())));
+
+        Mockito.verify(blueprintToolService, Mockito.never()).updateCourseSettings(any());
+    }
+
+    @Test
+    public void testSettingsSubmitRejectsMissingPostedCourseId() throws Exception {
+        Assertions.assertThrows(Exception.class, () ->
+                mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", ID).with(csrf())));
+
+        Mockito.verify(blueprintToolService, Mockito.never()).updateCourseSettings(any());
+    }
+
+    @Test
+    public void testSettingsSubmitRejectsMismatchedContext() throws Exception {
+        Assertions.assertThrows(Exception.class, () ->
+                mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/submit?action=save", "notMyCourse").with(csrf())));
+
+        Mockito.verify(blueprintToolService, Mockito.never()).updateCourseSettings(any());
+    }
+
+    @Test
+    public void testConfirmSubmitRejectsPostedBlueprintCourseIdThatDoesNotMatchContext() throws Exception {
+        Assertions.assertThrows(Exception.class, () ->
+                mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID)
+                        .param("blueprintCourseId", "someOtherBlueprint").with(csrf())));
+
+        Mockito.verify(blueprintToolService, Mockito.never()).updateAssociations(any(), any(), any());
+    }
+
+    @Test
+    public void testConfirmSubmitRejectsMissingPostedBlueprintCourseId() throws Exception {
+        Assertions.assertThrows(Exception.class, () ->
+                mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf())));
+
+        Mockito.verify(blueprintToolService, Mockito.never()).updateAssociations(any(), any(), any());
+    }
+
+    @Test
     public void testAssociateFailure() throws Exception {
         BlueprintUpdateStatus updateStatus = new BlueprintUpdateStatus();
         updateStatus.setSuccess(false);
         updateStatus.setMessage("boom!");
 
-        Mockito.when(blueprintToolService.updateAssociations(any())).thenReturn(updateStatus);
+        Mockito.when(blueprintToolService.updateAssociations(any(), any(), any())).thenReturn(updateStatus);
         Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).param("blueprintCourseId", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
@@ -302,7 +345,7 @@ public class BlueprintControllerTest {
     public void testAssociateSuccessSyncSuccess() throws Exception {
         BlueprintUpdateStatus updateStatus = new BlueprintUpdateStatus();
         updateStatus.setSuccess(true);
-        Mockito.when(blueprintToolService.updateAssociations(any())).thenReturn(updateStatus);
+        Mockito.when(blueprintToolService.updateAssociations(any(), any(), any())).thenReturn(updateStatus);
 
         BlueprintMigrationStatus migrationStatus = new BlueprintMigrationStatus();
         BlueprintMigration blueprintMigration = new BlueprintMigration();
@@ -311,7 +354,7 @@ public class BlueprintControllerTest {
         Mockito.when(blueprintToolService.performMigration(any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(migrationStatus);
         Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).param("blueprintCourseId", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
@@ -323,14 +366,14 @@ public class BlueprintControllerTest {
     public void testAssociateSuccessSyncFailure() throws Exception {
         BlueprintUpdateStatus updateStatus = new BlueprintUpdateStatus();
         updateStatus.setSuccess(true);
-        Mockito.when(blueprintToolService.updateAssociations(any())).thenReturn(updateStatus);
+        Mockito.when(blueprintToolService.updateAssociations(any(), any(), any())).thenReturn(updateStatus);
 
         BlueprintMigrationStatus migrationStatus = new BlueprintMigrationStatus();
         migrationStatus.setMessage("boom!");
         Mockito.when(blueprintToolService.performMigration(any(), Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean())).thenReturn(migrationStatus);
         Mockito.when(blueprintToolService.buildAssociationBackingModel(any(), any())).thenReturn(new BlueprintAssociationModel());
 
-        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).with(csrf()));
+        ResultActions mockMvcAction = mockMvc.perform(MockMvcRequestBuilders.post("/app/{ID}/confirm?action=submit", ID).param("blueprintCourseId", ID).with(csrf()));
 
         mockMvcAction.andExpect(MockMvcResultMatchers.status().isOk());
         mockMvcAction.andExpect(MockMvcResultMatchers.view().name("associate"));
