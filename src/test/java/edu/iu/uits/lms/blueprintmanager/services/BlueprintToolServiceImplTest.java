@@ -44,6 +44,7 @@ import edu.iu.uits.lms.canvas.helpers.EnrollmentHelper;
 import edu.iu.uits.lms.canvas.helpers.TermHelper;
 import edu.iu.uits.lms.canvas.model.Account;
 import edu.iu.uits.lms.canvas.model.BlueprintCourseUpdateStatus;
+import edu.iu.uits.lms.canvas.model.BlueprintUpdateStatus;
 import edu.iu.uits.lms.canvas.model.CanvasTerm;
 import edu.iu.uits.lms.canvas.model.Course;
 import edu.iu.uits.lms.canvas.model.User;
@@ -122,7 +123,7 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithNoEnrollments() {
         Course course = baseCourse(null);
 
-        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
+        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
         Mockito.when(coursesApi.getUsersForCourseByType(anyString(), anyList(), anyList(), eq(canvasRestTemplateAsUser)))
                 .thenReturn(null);
 
@@ -134,7 +135,7 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithStudents() {
         Course course = baseCourse(EnrollmentHelper.TYPE.student);
 
-        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
+        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
 
         List<User> users = new ArrayList<>();
         User user = new User();
@@ -152,7 +153,7 @@ public class BlueprintToolServiceImplTest {
     public void testGetCourseSettingsWithInstructors() {
         Course course = baseCourse(EnrollmentHelper.TYPE.teacher);
 
-        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(course);
+        Mockito.when(coursesApi.getCourse(ID)).thenReturn(course);
 
         BlueprintSettings courseSettings = blueprintToolService.getCourseSettings(ID);
         Assertions.assertFalse(courseSettings.hasEnrollments());
@@ -363,6 +364,74 @@ public class BlueprintToolServiceImplTest {
         List<Course> availableCourses = blueprintToolService.getAvailableCourses(userId, accountId);
         Assertions.assertEquals(2, availableCourses.size());
 
+    }
+
+    private BlueprintConfirmationModel confirmationModelAdding(String blueprintCourseId, String... courseIds) {
+        BlueprintConfirmationModel model = new BlueprintConfirmationModel();
+        model.setBlueprintCourseId(blueprintCourseId);
+        for (String courseId : courseIds) {
+            BlueprintConfirmationModel.CourseConfirmation cc = new BlueprintConfirmationModel.CourseConfirmation();
+            cc.setCourseId(courseId);
+            model.getAddedCourses().add(cc);
+        }
+        return model;
+    }
+
+    private void mockUserTeaches(String username, String accountId, String... courseIds) {
+        Course blueprint = baseCourse(null);
+        blueprint.setAccountId(accountId);
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(blueprint);
+
+        Account account = new Account();
+        account.setId(accountId);
+
+        List<Course> taught = new ArrayList<>();
+        for (String courseId : courseIds) {
+            Course c = new Course();
+            c.setId(courseId);
+            c.setAccountId(accountId);
+            taught.add(c);
+        }
+        Mockito.when(coursesApi.getCoursesTaughtBy(username, false, false, false, canvasRestTemplateAsUser)).thenReturn(taught);
+        Mockito.when(accountsApi.getParentAccounts(accountId)).thenReturn(Arrays.asList(account));
+    }
+
+    @Test
+    public void testUpdateAssociationsRejectsCourseTheUserDoesNotTeach() {
+        mockUserTeaches("user1", "123", "mine");
+
+        BlueprintUpdateStatus status = blueprintToolService.updateAssociations(ID, "user1",
+                confirmationModelAdding(ID, "mine", "notMine"));
+
+        Assertions.assertFalse(status.isSuccess());
+        Assertions.assertNotNull(status.getMessage());
+        Mockito.verify(blueprintApi, Mockito.never()).updateAssociatedCourses(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testUpdateAssociationsAllowsCoursesTheUserTeaches() {
+        mockUserTeaches("user1", "123", "mine", "alsoMine");
+        BlueprintUpdateStatus ok = new BlueprintUpdateStatus();
+        ok.setSuccess(true);
+        Mockito.when(blueprintApi.updateAssociatedCourses(any(), any(), any(), any())).thenReturn(ok);
+
+        // posted blueprintCourseId is deliberately different from the launch context
+        BlueprintUpdateStatus status = blueprintToolService.updateAssociations(ID, "user1",
+                confirmationModelAdding("someOtherBlueprint", "mine", "alsoMine"));
+
+        Assertions.assertTrue(status.isSuccess());
+        Mockito.verify(blueprintApi).updateAssociatedCourses(eq(ID), any(), eq(Arrays.asList("mine", "alsoMine")), eq(new ArrayList<String>()));
+    }
+
+    @Test
+    public void testUpdateAssociationsRejectsWhenBlueprintCourseNotAccessible() {
+        Mockito.when(coursesApi.getCourse(ID, canvasRestTemplateAsUser)).thenReturn(null);
+
+        BlueprintUpdateStatus status = blueprintToolService.updateAssociations(ID, "user1",
+                confirmationModelAdding(ID, "anything"));
+
+        Assertions.assertFalse(status.isSuccess());
+        Mockito.verify(blueprintApi, Mockito.never()).updateAssociatedCourses(any(), any(), any(), any());
     }
 
     @Test

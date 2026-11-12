@@ -105,7 +105,7 @@ public class BlueprintToolService {
 
 
     public BlueprintSettings getCourseSettings(String courseId) {
-        Course course = courseService.getCourse(courseId, canvasRestTemplateAsUser);
+        Course course = courseService.getCourse(courseId);
         return getCourseSettings(course);
     }
 
@@ -337,18 +337,50 @@ public class BlueprintToolService {
         return bcm;
     }
 
-    public BlueprintUpdateStatus updateAssociations(BlueprintConfirmationModel model) {
+    /**
+     * Add/remove associations on a blueprint course. The actual Canvas update runs on the shared admin token
+     * (manage_master_courses), so nothing from the posted form is trusted: the blueprint course is the validated
+     * launch context, and every course being added must be one the user could have picked on the association screen
+     * (see {@link #getAvailableCourses(String, String)}).
+     * @param blueprintCourseId the blueprint course (the validated launch context, never a form value)
+     * @param username the launching user's login id
+     * @param model the posted confirmation model
+     * @return status of the update; success is false (with a message) if the request was rejected
+     */
+    public BlueprintUpdateStatus updateAssociations(String blueprintCourseId, String username, BlueprintConfirmationModel model) {
         List<BlueprintConfirmationModel.CourseConfirmation> addedCourses = model.getAddedCourses();
         List<String> addedCourseIds = addedCourses.stream()
                 .map(BlueprintConfirmationModel.CourseConfirmation::getCourseId)
                 .collect(Collectors.toList());
+
+        // The association update below runs on the admin token, so it will associate whatever course ids it is
+        // given. Don't trust the ids posted in the form: check every course being added against the same list the
+        // association page shows (courses this user teaches, in this blueprint's account hierarchy, that aren't
+        // already blueprints). If any course isn't on that list, reject the whole request and change nothing.
+        // Example: the user teaches courses A and B, but posts a request adding A and C. C isn't on their list,
+        // so nothing is associated.
+        if (!addedCourseIds.isEmpty()) {
+            Course blueprintCourse = courseService.getCourse(blueprintCourseId, canvasRestTemplateAsUser);
+            Set<String> allowedCourseIds = blueprintCourse == null ? Set.of()
+                    : getAvailableCourses(username, blueprintCourse.getAccountId()).stream()
+                    .map(Course::getId).collect(Collectors.toSet());
+
+            if (!allowedCourseIds.containsAll(addedCourseIds)) {
+                log.warn("Rejecting association update on blueprint course {} by {}: requested courses {} are not all available to the user",
+                        blueprintCourseId, username, addedCourseIds);
+                BlueprintUpdateStatus rejected = new BlueprintUpdateStatus();
+                rejected.setSuccess(false);
+                rejected.setMessage("One or more of the selected courses cannot be associated with this blueprint course.");
+                return rejected;
+            }
+        }
 
         List<BlueprintConfirmationModel.CourseConfirmation> removedCourses = model.getRemovedCourses();
         List<String> removedCourseIds = removedCourses.stream()
                 .map(BlueprintConfirmationModel.CourseConfirmation::getCourseId)
                 .collect(Collectors.toList());
 
-        return blueprintService.updateAssociatedCourses(model.getBlueprintCourseId(), TEMPLATE_ID,
+        return blueprintService.updateAssociatedCourses(blueprintCourseId, TEMPLATE_ID,
                 addedCourseIds, removedCourseIds);
     }
 
